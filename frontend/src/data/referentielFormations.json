@@ -1,0 +1,34 @@
+{
+  "Développement": [
+    { "label": "Agilité et éco-conception", "url": "https://example.com/formation/developpement-agile", "organisme": "Institut Numérique" },
+    { "label": "DevOps et automatisation", "url": "https://example.com/formation/devops", "organisme": "Cloud Académie" }
+  ],
+  "Architecture logicielle": [
+    { "label": "Architectures modulaires", "url": "https://example.com/formation/architecture-modulaire", "organisme": "TechForma" },
+    { "label": "Patterns applicatifs santé", "url": "https://example.com/formation/architecture-sante", "organisme": "HealthTech Campus" }
+  ],
+  "Data / Analyse de données": [
+    { "label": "DataOps pour la santé", "url": "https://example.com/formation/dataops", "organisme": "DataLab Santé" },
+    { "label": "Visualisation de données avancée", "url": "https://example.com/formation/dataviz", "organisme": "Analytics School" }
+  ],
+  "UX/UI Design": [
+    { "label": "UX pour parcours patients", "url": "https://example.com/formation/ux-patient", "organisme": "DesignCare" },
+    { "label": "Accessibilité numérique", "url": "https://example.com/formation/accessibilite", "organisme": "Inclusive Lab" }
+  ],
+  "RGPD / conformité réglementaire": [
+    { "label": "Fondamentaux RGPD pour la santé", "url": "https://example.com/formation/rgpd", "organisme": "Compliance Plus" },
+    { "label": "Gestion des risques réglementaires", "url": "https://example.com/formation/risques-reglementaires", "organisme": "HealthSecure" }
+  ],
+  "Cybersécurité": [
+    { "label": "SOC & surveillance", "url": "https://example.com/formation/soc", "organisme": "Cyberdefense" },
+    { "label": "Pentest appli santé", "url": "https://example.com/formation/pentest", "organisme": "Security Campus" }
+  ],
+  "Infrastructure": [
+    { "label": "Cloud pour SI hospitaliers", "url": "https://example.com/formation/cloud-sante", "organisme": "InfraHealth" },
+    { "label": "Bases de données critiques", "url": "https://example.com/formation/bdd", "organisme": "DataCore" }
+  ],
+  "Management Projet, déploiement logiciels": [
+    { "label": "Conduite de projet e-santé", "url": "https://example.com/formation/projet-esante", "organisme": "ProjCampus" },
+    { "label": "Déploiement logiciel hospitalier", "url": "https://example.com/formation/deploiement", "organisme": "MedTech Institute" }
+  ]
+}
