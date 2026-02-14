@@ -6,6 +6,7 @@ import SkillsNeedsSection from '../components/Results/SkillsNeedsSection'
 import CertificationsSection from '../components/Results/CertificationsSection'
 import RecruitmentSection from '../components/Results/RecruitmentSection'
 import PerspectivesSection from '../components/Results/PerspectivesSection'
+import CvMatcher from '../components/CvMatcher/CvMatcher'
 import { calculateAggregates } from '../utils/aggregate'
 import { createEmptyMapping, loadStoredMapping, mappingIsReady, persistMapping } from '../utils/mapping'
 import { Aggregates, MappingConfig, SurveyRow } from '../types/survey'
@@ -113,6 +114,8 @@ const DashboardPage = () => {
           />
         </div>
       )}
+
+      <CvMatcher />
 
       <footer className="mt-12 flex flex-row items-center justify-between py-6 w-full">
         <img
