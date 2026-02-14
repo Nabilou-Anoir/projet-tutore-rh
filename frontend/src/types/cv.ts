@@ -26,3 +26,14 @@ export interface CvMatchResult extends CvDocument {
   }[]
   highlightedSentences: string[]
 }
+
+export interface LlmMatchAssessment {
+  docId: string
+  score: number
+  decision: 'strong_yes' | 'yes' | 'maybe' | 'no'
+  summary: string
+  strengths: string[]
+  missingSkills: string[]
+  risks: string[]
+  rawResponse: string
+}
