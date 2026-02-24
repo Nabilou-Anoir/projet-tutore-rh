@@ -1,52 +1,84 @@
-# Un "MonoRepo" avec Spring Boot, vue.js et Bootstrap
+# Monorepo Spring Boot + React (Vite)
 
-## Structure du projet
+## Structure
 
 ```
-monorepo
-├─┬ backend     → backend module with Spring Boot code
-│ ├── src
-│ └── pom.xml
-├─┬ frontend    → frontend module with Vue.js code
-│ ├── src
-│ └── pom.xml
-└── pom.xml     → Maven parent pom managing both modules
+Projet-tutore-RH
+├─ backend      → API Spring Boot / Swagger / endpoints Ollama
+├─ frontend     → application React + Vite
+└─ pom.xml      → parent Maven
 ```
 
-## Pour exécuter le projet
+## Prérequis
 
-A la racine du projet:
+- Node.js 18+ et npm 9+ pour le frontend.
+- JDK 21 (obligatoire : la compilation Maven échoue sinon).
+- Maven wrapper (`./mvnw`) inclus dans ce dépôt.
+- (Optionnel) [Ollama](https://ollama.com/) si vous souhaitez utiliser l’IA locale pour classer les CV.
+
+## Installation des dépendances frontend
 
 ```bash
-mvn clean install
+cd frontend
+npm install
 ```
 
-Cette commande va :
-- Installer node et npm.
-- construire le frontend en utilisant les outils vue.js.
-- recopier ensuite les fichiers dans le backend.
-- construire le backend.
+Cette commande est à exécuter une seule fois (ou après un `git pull` qui ajoute de nouvelles dépendances).
 
-Pour exécuter l'application "fullstack" :
-
-```bash
-mvn --projects backend spring-boot:run
-```
-
-L'application fullstack est accessible sur : <http://localhost:8989/>.
-
-Vous avez également accès à [la console d'administration H2](http://localhost:8989/h2-console) 
-et à l'[API swagger](http://localhost:8989/swagger-ui/index.html)
-
-## Utilisation des outils de développement "front-end"
-
-Pour faciliter le développement du frontend, on peut lancer le serveur de développement, qui "rafraîchit" automatiquement le front-end à chaque changement dans le code ! Pour cela (dans un nouveau terminal), se positionner dans le répertoire `frontend` et lancer :
+## Lancer le frontend (Vite)
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-## Déployer sur un cloud
+Par défaut, Vite sert l’application sur [http://localhost:5173](http://localhost:5173) avec rechargement à chaud.  
+Le proxy défini dans `vite.config.ts` enverra les requêtes `/rest/**` vers le backend Spring Boot (port 8989), pensez donc à le démarrer aussi pour éviter les erreurs `ECONNREFUSED`.
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=monorepo&repository=bastide%2Fmonorepo&branch=master&instance_type=free)
+## Lancer le backend Spring Boot
+
+Depuis la racine du projet :
+
+```bash
+./mvnw --projects backend spring-boot:run
+```
+
+- L’API est disponible sur [http://localhost:8989](http://localhost:8989).
+- Console H2 : [http://localhost:8989/h2-console](http://localhost:8989/h2-console)
+- Swagger UI : [http://localhost:8989/swagger-ui/index.html](http://localhost:8989/swagger-ui/index.html)
+- Endpoints Ollama : `/rest/ollama/status` et `/rest/ollama/warmup`
+
+> ⚠️ Assurez-vous que `java -version` retourne bien une version 21+, sinon Maven refusera de compiler (`release version 21 not supported`).
+
+## Utiliser l’IA locale (Ollama)
+
+1. Installer Ollama et lancer le service :
+   ```bash
+   ollama serve
+   ```
+2. Option facultative mais recommandée : précharger le modèle Mistral dans un terminal séparé
+   ```bash
+   ollama run mistral
+   ```
+3. Dans l’interface (section “IA locale”), cliquez sur “Vérifier l’état d’Ollama” puis “Lancer / charger Mistral”.  
+   L’indicateur passe au vert quand le backend confirme que le modèle est disponible.
+
+Les consignes RH que vous tapez dans le champ prévu seront injectées dans le prompt envoyé à l’IA, directement depuis le frontend.
+
+## Build complet
+
+- Générer le frontend optimisé :
+  ```bash
+  cd frontend
+  npm run build
+  ```
+- Construire le backend + copier le build front dans `src/main/resources/public` :
+  ```bash
+  ./mvnw clean install
+  ```
+
+Le package Spring Boot résultant embarque les assets du frontend (dossier `frontend/target/dist`) et peut être démarré seul sur le port 8989.
+
+## Déploiement (rappel)
+
+Le dépôt contient déjà un bouton “Deploy to Koyeb” pour publier rapidement l’application. Pensez simplement à fournir un JDK 21 sur l’environnement cible et, si vous voulez l’IA locale, à installer/configurer Ollama sur cette même machine.
