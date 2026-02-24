@@ -1,10 +1,14 @@
 import type { CvDocument, KeywordDescriptor, LlmMatchAssessment } from '../types/cv'
 
+const DEFAULT_OLLAMA_BASE_URL = import.meta.env.VITE_OLLAMA_BASE_URL ?? 'http://localhost:11434'
+const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL ?? ''
+
 export interface OllamaConfig {
-  baseUrl: string
-  model: string
+  baseUrl?: string
+  model?: string
   temperature?: number
   maxCharacters?: number
+  instructions?: string
 }
 
 export interface OllamaFailure {
@@ -16,6 +20,36 @@ export interface OllamaFailure {
 export interface OllamaBatchResult {
   results: LlmMatchAssessment[]
   failures: OllamaFailure[]
+}
+
+export interface BackendOllamaStatus {
+  online: boolean
+  modelReady: boolean
+  message: string
+  models: string[]
+  targetModel: string
+}
+
+const buildBackendUrl = (path: string) => `${BACKEND_BASE_URL}${path}`
+
+export const fetchBackendOllamaStatus = async (model: string): Promise<BackendOllamaStatus> => {
+  const response = await fetch(buildBackendUrl(`/rest/ollama/status?model=${encodeURIComponent(model)}`))
+  if (!response.ok) {
+    throw new Error('Impossible de joindre le backend pour vérifier l’IA.')
+  }
+  return response.json()
+}
+
+export const launchBackendOllama = async (model: string): Promise<BackendOllamaStatus> => {
+  const response = await fetch(buildBackendUrl('/rest/ollama/launch'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model }),
+  })
+  if (!response.ok) {
+    throw new Error("Impossible de lancer l'initialisation du modèle.")
+  }
+  return response.json()
 }
 
 const sanitizeBaseUrl = (url: string) => url.replace(/\/$/, '')
@@ -51,9 +85,17 @@ const extractJsonPayload = (content: string) => {
   }
 }
 
-const buildPrompt = (document: CvDocument, keywords: KeywordDescriptor[], maxCharacters: number) => {
+const buildPrompt = (
+  document: CvDocument,
+  keywords: KeywordDescriptor[],
+  maxCharacters: number,
+  extraInstructions?: string,
+) => {
   const keywordList = keywords.length > 0 ? keywords.map((keyword) => keyword.label).join(', ') : 'Aucun mot-clé fourni'
   const excerpt = document.text.slice(0, maxCharacters)
+  const customBlock = extraInstructions?.trim()
+    ? `\nConsignes RH supplémentaires (à respecter strictement) :\n${extraInstructions.trim()}\n`
+    : ''
 
   return `
 Tu es un assistant RH spécialisé dans le tri de CV francophones. Compare le CV fourni aux mots-clés indiqués et renvoie uniquement un JSON strict respectant ce schéma :
@@ -71,7 +113,7 @@ Mots-clés à couvrir : ${keywordList}
 CV (extrait ${excerpt.length} caractères sur ${document.text.length}) :
 """${excerpt}"""
 
-Ne renvoie que le JSON demandé, aucun texte additionnel.`.trim()
+${customBlock}Ne renvoie que le JSON demandé, aucun texte additionnel.`.trim()
 }
 
 const callOllama = async (
@@ -95,7 +137,7 @@ const callOllama = async (
         },
         {
           role: 'user',
-          content: buildPrompt(document, keywords, config.maxCharacters),
+          content: buildPrompt(document, keywords, config.maxCharacters, config.instructions),
         },
       ],
     }),
@@ -136,10 +178,11 @@ export const runOllamaBatch = async (
   config: OllamaConfig,
 ): Promise<OllamaBatchResult> => {
   const resolvedConfig: Required<OllamaConfig> = {
-    baseUrl: config.baseUrl || 'http://localhost:11434',
+    baseUrl: config.baseUrl || DEFAULT_OLLAMA_BASE_URL,
     model: config.model || 'mistral',
     temperature: config.temperature ?? 0.2,
     maxCharacters: config.maxCharacters ?? 4000,
+    instructions: config.instructions ?? '',
   }
 
   const results: LlmMatchAssessment[] = []

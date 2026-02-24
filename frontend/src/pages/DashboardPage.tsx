@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useSurvey } from '../contexts/SurveyContext'
 import FileImport from '../components/FileImport'
 import MappingPanel from '../components/MappingPanel'
 import GeneralInfoSection from '../components/Results/GeneralInfoSection'
@@ -6,61 +7,23 @@ import SkillsNeedsSection from '../components/Results/SkillsNeedsSection'
 import CertificationsSection from '../components/Results/CertificationsSection'
 import RecruitmentSection from '../components/Results/RecruitmentSection'
 import PerspectivesSection from '../components/Results/PerspectivesSection'
-import CvMatcher from '../components/CvMatcher/CvMatcher'
 import { calculateAggregates } from '../utils/aggregate'
 import { createEmptyMapping, loadStoredMapping, mappingIsReady, persistMapping } from '../utils/mapping'
 import { Aggregates, MappingConfig, SurveyRow } from '../types/survey'
 
 
-// Mapping automatique basé sur les colonnes du CSV exemple fourni
-const AUTO_MAPPING: MappingConfig = {
-  q1: 'Organisation',
-  q2: 'Taille',
-  q3: {
-    'Développement': 'Développement',
-    'Architecture logicielle': 'Architecture logicielle',
-    'Data / Analyse de données': 'Data / Analyse de données',
-    'UX/UI Design': 'UX/UI Design',
-    'RGPD / conformité réglementaire': 'RGPD / conformité réglementaire',
-    'Cybersécurité': 'Cybersécurité',
-    'Infrastructure': 'Infrastructure',
-    'Management Projet, déploiement logiciels': 'Management Projet, déploiement logiciels',
-  },
-  q5: 'Q5',
-  q7: { mode: 'single', singleColumn: 'Q7', delimiter: ';' },
-  q7bis: { mode: 'single', singleColumn: 'Q7bis', delimiter: ';' },
-  q8: 'Q8',
-  q8bis: 'Q8bis',
-  q9: 'Q9',
-  q10: 'Q10',
-  q11: { mode: 'single', singleColumn: 'Q11', delimiter: ';' },
-  q12: 'Q12',
-  q13: { mode: 'single', singleColumn: 'Q13', delimiter: ';' },
-}
-
 const DashboardPage = () => {
-  const [rows, setRows] = useState<SurveyRow[]>([])
-  const [columns, setColumns] = useState<string[]>([])
-  const [mapping, setMapping] = useState<MappingConfig>(AUTO_MAPPING)
-  const [mappingValidated, setMappingValidated] = useState(false)
+  const { rows, mapping, mappingValidated, handleImport } = useSurvey()
 
   const aggregates: Aggregates | null = useMemo(() => {
     if (!mappingValidated || rows.length === 0) return null
     return calculateAggregates(rows, mapping)
   }, [mappingValidated, rows, mapping])
 
-  // Lors de l'import, applique le mapping auto et valide directement
-  const handleImport = (parsedRows: SurveyRow[], availableColumns: string[]) => {
-    setRows(parsedRows)
-    setColumns(availableColumns)
-    setMapping(AUTO_MAPPING)
-    setMappingValidated(true)
-  }
-
   // Le mapping panel et le bouton de validation sont masqués
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 min-h-screen">
-  <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#3299CC' }}>
+      <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#3299CC' }}>
         <div>
           <p className="text-sm uppercase tracking-widest text-emerald-200">Observatoire compétences</p>
           <h1 className="mt-2 text-3xl font-semibold">Analyse LimeSurvey des besoins en compétences numériques</h1>
@@ -114,8 +77,6 @@ const DashboardPage = () => {
           />
         </div>
       )}
-
-      <CvMatcher />
 
       <footer className="mt-12 flex flex-row items-center justify-between py-6 w-full">
         <img

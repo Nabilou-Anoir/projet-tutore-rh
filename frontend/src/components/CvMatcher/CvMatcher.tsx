@@ -1,19 +1,25 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
+import { useCvMatcher } from '../../contexts/CvMatcherContext'
 import type { CvDocument, LlmMatchAssessment } from '../../types/cv'
 import { loadCvBatch } from '../../utils/cvFiles'
 import { extractKeywords, formatFileSize, rankCvDocuments } from '../../utils/cvMatcher'
-import { runOllamaBatch } from '../../utils/ollama'
+import { fetchBackendOllamaStatus, launchBackendOllama, runOllamaBatch } from '../../utils/ollama'
 
 const CvMatcher = () => {
-  const [documents, setDocuments] = useState<CvDocument[]>([])
-  const [keywordInput, setKeywordInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
-  const [ollamaHost, setOllamaHost] = useState('http://localhost:11434')
-  const [ollamaModel, setOllamaModel] = useState('mistral')
-  const [aiStatus, setAiStatus] = useState<'idle' | 'running'>('idle')
-  const [aiError, setAiError] = useState<string | null>(null)
-  const [aiResults, setAiResults] = useState<Record<string, LlmMatchAssessment>>({})
+  const TARGET_MODEL = 'mistral'
+  const {
+    documents, setDocuments,
+    keywordInput, setKeywordInput,
+    loading, setLoading,
+    errors, setErrors,
+    ollamaStatus, setOllamaStatus,
+    statusLoading, setStatusLoading,
+    aiStatus, setAiStatus,
+    aiError, setAiError,
+    aiResults, setAiResults,
+    customInstruction, setCustomInstruction,
+    clearAll
+  } = useCvMatcher()
 
   const keywords = useMemo(() => extractKeywords(keywordInput), [keywordInput])
   const rankedResults = useMemo(() => rankCvDocuments(documents, keywords), [documents, keywords])
@@ -21,6 +27,34 @@ const CvMatcher = () => {
     () => rankedResults.map((result) => ({ result, ai: aiResults[result.id] })),
     [rankedResults, aiResults],
   )
+
+  const refreshStatus = async () => {
+    setStatusLoading(true)
+    try {
+      const status = await fetchBackendOllamaStatus(TARGET_MODEL)
+      setOllamaStatus({
+        label: status.modelReady
+          ? `Modèle ${status.targetModel} prêt`
+          : status.online
+            ? `Service disponible, modèle à charger`
+            : 'Ollama injoignable',
+        ready: status.online && status.modelReady,
+        raw: status.message,
+      })
+    } catch (error) {
+      setOllamaStatus({
+        label: "Impossible de contacter l'API backend",
+        ready: false,
+        raw: error instanceof Error ? error.message : 'Erreur inconnue',
+      })
+    } finally {
+      setStatusLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    refreshStatus()
+  }, [])
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files
@@ -48,12 +82,16 @@ const CvMatcher = () => {
       setAiError('Ajoutez au moins un CV et un mot-clé pour lancer l’analyse.')
       return
     }
+    if (!ollamaStatus?.ready) {
+      setAiError('Le modèle IA n’est pas prêt. Lancez la vérification ou le chargement.')
+      return
+    }
     setAiStatus('running')
     setAiError(null)
     try {
       const { results, failures } = await runOllamaBatch(documents, keywords, {
-        baseUrl: ollamaHost,
-        model: ollamaModel,
+        model: TARGET_MODEL,
+        instructions: customInstruction,
       })
       setAiResults((current) => {
         const next = { ...current }
@@ -81,12 +119,6 @@ const CvMatcher = () => {
       delete next[id]
       return next
     })
-  }
-
-  const handleClearAll = () => {
-    setDocuments([])
-    setErrors([])
-    setAiResults({})
   }
 
   const formatDecisionLabel = (decision: LlmMatchAssessment['decision']) => {
@@ -147,7 +179,7 @@ const CvMatcher = () => {
             {documents.length > 0 && (
               <button
                 type="button"
-                onClick={handleClearAll}
+                onClick={clearAll}
                 className="text-emerald-600 underline-offset-4 hover:underline"
               >
                 Effacer tout
@@ -194,50 +226,73 @@ const CvMatcher = () => {
       )}
 
       <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 p-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">IA locale (optionnel)</p>
             <h3 className="text-lg font-semibold text-emerald-900">Brancher Ollama ou runtime compatible OpenAI</h3>
             <p className="text-sm text-emerald-800">
-              Lancez <code>ollama serve</code> puis <code>ollama run mistral</code> (ou un autre modèle) en local. Les données restent sur votre machine.
+              Cliquez sur “Vérifier” pour savoir si Ollama tourne. S’il est prêt, vous pourrez lancer l’analyse sans ouvrir un terminal.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleRunAi}
-            disabled={aiStatus === 'running'}
-            className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {aiStatus === 'running' ? 'Analyse en cours…' : 'Analyser avec l’IA locale'}
-          </button>
-        </div>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={refreshStatus}
+              disabled={statusLoading}
+              className="rounded-2xl border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 disabled:opacity-50"
+            >
+              {statusLoading ? 'Vérification…' : 'Vérifier l’état d’Ollama'}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setStatusLoading(true)
+                try {
+                  await launchBackendOllama(TARGET_MODEL)
+                  await refreshStatus()
+                } catch (error) {
+                  setOllamaStatus({
+                    label: 'Echec du chargement',
+                    ready: false,
+                    raw: error instanceof Error ? error.message : 'Erreur inconnue',
+                  })
+                } finally {
+                  setStatusLoading(false)
+                }
+              }}
+              className="rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Lancer / charger Mistral
+            </button>
+            <button
+              type="button"
+              onClick={handleRunAi}
+              disabled={aiStatus === 'running'}
+              className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {aiStatus === 'running' ? 'Analyse en cours…' : 'Analyser avec l’IA locale'}
+            </button>
+          </div>
           <label className="text-sm text-emerald-900">
-            URL du service
-            <input
-              type="text"
-              value={ollamaHost}
-              onChange={(event) => setOllamaHost(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-emerald-200 bg-white p-2 text-slate-800 focus:border-emerald-600 focus:outline-none"
-              placeholder="http://localhost:11434"
+            Consigne RH à transmettre au modèle (optionnel)
+            <textarea
+              value={customInstruction}
+              onChange={(event) => setCustomInstruction(event.target.value)}
+              rows={3}
+              placeholder="Ex : privilégier les profils santé numérique, vérifier la maîtrise de l'anglais..."
+              className="mt-2 w-full rounded-2xl border border-emerald-200 bg-white p-3 text-sm text-slate-800 focus:border-emerald-600 focus:outline-none"
             />
           </label>
-          <label className="text-sm text-emerald-900">
-            Modèle
-            <input
-              type="text"
-              value={ollamaModel}
-              onChange={(event) => setOllamaModel(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-emerald-200 bg-white p-2 text-slate-800 focus:border-emerald-600 focus:outline-none"
-              placeholder="mistral"
+          <div className="flex items-center gap-2 text-sm text-emerald-900">
+            <span
+              className={`h-3 w-3 rounded-full ${ollamaStatus?.ready ? 'bg-emerald-500' : 'bg-amber-400'}`}
+              aria-hidden
             />
-          </label>
+            <span>{ollamaStatus?.label ?? 'Statut non vérifié'}</span>
+          </div>
+          {ollamaStatus?.raw && <p className="text-xs text-emerald-800">{ollamaStatus.raw}</p>}
+          {aiError && <p className="rounded-xl bg-white/80 p-3 text-sm text-red-700">{aiError}</p>}
         </div>
-        <p className="mt-2 text-xs text-emerald-900">
-          Conseil : exposez l’API via <code>/api/chat</code>. Aucun appel ne part vers Internet.
-        </p>
-        {aiError && <p className="mt-3 rounded-xl bg-white/80 p-3 text-sm text-red-700">{aiError}</p>}
       </div>
 
       <div className="mt-8 rounded-2xl border border-slate-100 p-6">
