@@ -1,71 +1,14 @@
--- Initialisation des tables
-INSERT INTO Country(id, code, name) VALUES
-    (1, 'FR', 'France'),
-    (2, 'UK', 'United Kingdom'),
-    (3, 'US', 'United States of America');
-ALTER TABLE Country ALTER COLUMN id RESTART WITH 4;
-
--- ===================== DOMAINES DE COMPETENCES =====================
-INSERT INTO domaine_competence(id, nom, description, icone) VALUES
-    (1, 'Développement', 'Compétences en développement logiciel, web et mobile', '💻'),
-    (2, 'Architecture logicielle', 'Conception d''architectures applicatives et système', '🏗️'),
-    (3, 'Data / Analyse de données', 'Collecte, traitement et exploitation des données', '📊'),
-    (4, 'UX/UI Design', 'Conception d''interfaces utilisateur et expérience utilisateur', '🎨'),
-    (5, 'RGPD / conformité réglementaire', 'Protection des données et conformité réglementaire en santé', '🔒'),
-    (6, 'Cybersécurité', 'Sécurité des systèmes d''information de santé', '🛡️'),
-    (7, 'Infrastructure', 'Gestion et déploiement d''infrastructures IT', '🖥️'),
-    (8, 'Management Projet, déploiement logiciels', 'Pilotage de projets et déploiement de solutions', '📋');
-ALTER TABLE domaine_competence ALTER COLUMN id RESTART WITH 9;
-
--- ===================== COMPETENCES =====================
-INSERT INTO competence(id, nom, description, niveau_attendu, domaine_id) VALUES
-    (1, 'DevOps CI/CD', 'Mise en place de pipelines d''intégration et déploiement continu', 'Intermédiaire', 1),
-    (2, 'Développement web full-stack', 'Maîtrise front-end et back-end pour applications web', 'Avancé', 1),
-    (3, 'Microservices et API REST', 'Conception d''architectures distribuées en microservices', 'Avancé', 2),
-    (4, 'Architecture cloud', 'Conception pour le cloud (AWS, Azure, GCP)', 'Intermédiaire', 2),
-    (5, 'DataOps & ETL', 'Pipelines de données, extraction, transformation, chargement', 'Intermédiaire', 3),
-    (6, 'Visualisation de données', 'Création de tableaux de bord et dataviz', 'Débutant', 3),
-    (7, 'Design thinking santé', 'Approche centrée patient pour la conception d''interfaces', 'Intermédiaire', 4),
-    (8, 'Accessibilité numérique', 'Normes WCAG et conception inclusive', 'Débutant', 4),
-    (9, 'RGPD appliqué à la santé', 'Application du RGPD aux données de santé', 'Avancé', 5),
-    (10, 'Audit de conformité', 'Conduite d''audits réglementaires en SI santé', 'Intermédiaire', 5),
-    (11, 'Pentest applicatif', 'Tests d''intrusion sur applications web en santé', 'Avancé', 6),
-    (12, 'SOC et surveillance', 'Centre opérationnel de sécurité et détection d''incidents', 'Intermédiaire', 6),
-    (13, 'Administration cloud', 'Gestion d''infrastructures cloud pour établissements de santé', 'Intermédiaire', 7),
-    (14, 'Bases de données critiques', 'Administration de bases de données à haute disponibilité', 'Avancé', 7),
-    (15, 'Conduite de projet e-santé', 'Pilotage de projets numériques en environnement hospitalier', 'Intermédiaire', 8),
-    (16, 'Déploiement logiciel hospitalier', 'Déploiement et migration de solutions en milieu hospitalier', 'Avancé', 8);
-ALTER TABLE competence ALTER COLUMN id RESTART WITH 17;
-
-
--- ============================================================
--- REFRENTIEL METIERS SI (Source: Cigref 2022)
--- ============================================================
-
--- Nettoyage des tables pour éviter les doublons
-DELETE FROM metier_competence_si;
-DELETE FROM activite_si;
-DELETE FROM metier_si;
-DELETE FROM competence_si;
-DELETE FROM famille_si;
-
--- Reset des IDs pour H2
-ALTER TABLE famille_si ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE competence_si ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE metier_si ALTER COLUMN id RESTART WITH 1;
-ALTER TABLE activite_si ALTER COLUMN id RESTART WITH 1;
-
 -- Auto-generated from cigref2.sql for H2
 
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Pilotage, organisation et gestion des évolutions du système d’information', 'Cette famille regroupe les métiers qui touchent de manière globale à la mise en cohérence organisationnelle et fonctionnelle du ou des SI. La plupart de ces métiers travaillent avec les directions métiers dans le respect des orientations stratégiques et ambitions de l''entreprise.', 1);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Management de projet', 'Cette famille regroupe les métiers qui pilotent, suivent et coordonnent les projets de développement, déploiement, infrastructure ou méthode informatique, risques etc. Ces métiers organisent les travaux, la gestion des ressources et la communication.', 2);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Cycle de vie des applications', 'Cette famille regroupe les métiers liés à la conception, au développement et à la réalisation technique et applicative des projets. Ces métiers n''interviennent pas sur l''organisation des SI mais sur les briques mises en œuvre pour intégrer, concevoir et maintenir les solutions IT.', 3);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Mise à disposition et maintenance en condition opérationnelle des infrastructures', 'Cette famille regroupe les métiers liés à l''étude, la conception, le développement, l''intégration et l''exploitation des infrastructures. Elle comprend aussi les métiers liés au support IT interne à la DSI.', 4);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Support et assistance aux utilisateurs', 'Cette famille regroupe les métiers tournés vers l''utilisateur ou usager du SI en termes d''assistance et d''accompagnement.', 5);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Sécurité', 'Cette famille regroupe les métiers liés à la définition, à l’expertise, à l’audit, à la mise en place et au contrôle concernant la sécurité et la cybersécurité des systèmes d’information.', 6);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Management opérationnel', 'Cette famille regroupe les métiers à responsabilité hiérarchique en termes de ressources humaines, de budget, de décision ou de périmètre.', 7);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Données', 'Cette famille regroupe les métiers liés au cycle de gestion de la donnée.', 8);
-INSERT INTO famille_si (nom, description, ordre) VALUES ('Relations fournisseurs', 'Cette famille regroupe les métiers liés à la relation avec les fournisseurs en matière d’achats, de gestion des contrats ou de gestion des licences.', 9);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Pilotage, organisation et gestion des évolutions du SI', NULL, 1);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Management de projet', NULL, 2);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Cycle de vie des applications', NULL, 3);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Mise à disposition et maintenance en condition opérationnelle des infrastructures', NULL, 4);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Sécurité', NULL, 6);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Management opérationnel', NULL, 7);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Données', NULL, 8);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Relations fournisseurs', NULL, 9);
+INSERT INTO famille_si (nom, description, ordre) VALUES ('Support et assistance', NULL, 5);
 INSERT INTO competence_si (nom, description) VALUES ('Systèmes d’information et alignement stratégique métier', NULL);
 INSERT INTO competence_si (nom, description) VALUES ('Expérience utilisateur', NULL);
 INSERT INTO competence_si (nom, description) VALUES ('Gestion des niveaux de service', NULL);
@@ -107,7 +50,7 @@ INSERT INTO competence_si (nom, description) VALUES ('Gestion de la qualité des
 INSERT INTO competence_si (nom, description) VALUES ('Gestion des changements métier', NULL);
 INSERT INTO competence_si (nom, description) VALUES ('Gestion de la sécurité de l''information', NULL);
 INSERT INTO competence_si (nom, description) VALUES ('Gouvernance des systèmes d''information', NULL);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Consultant En Systèmes D’Information', 'Il anticipe et fait mûrir les nouveaux projets par une sensibilisation à l’apport des technologies et une analyse prospective des processus métiers. Il assiste la maîtrise d’ouvrage pour la définition des besoins et des solutions à mettre en œuvre, dans un souci de meilleure intégration dans le système d’information d’entreprise.', 'Il anticipe et fait mûrir les nouveaux projets par une sensibilisation à l’apport des technologies et une analyse prospective des processus métiers. Il assiste la maîtrise d’ouvrage pour la définition des besoins et des solutions à mettre e…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Consultant En Systèmes D’Information' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Conseille sur l''optimisation de l’utilisation des outils et des systèmes en place.', NULL, 1);
@@ -138,7 +81,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Amélioration des 
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 7);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion des changements métier' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 8);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Urbaniste Des Systèmes D’Information', 'Il garantit l’évolution cohérente de l’ensemble du système d’information dans le respect des objectifs de l’entreprise, du domaine fonctionnel et des contraintes externes et internes (de risques, de coûts, de délais…) et en exploitant au mieux les possibilités de l’état de l’art en relation avec l’architecture technique.', 'Il garantit l’évolution cohérente de l’ensemble du système d’information dans le respect des objectifs de l’entreprise, du domaine fonctionnel et des contraintes externes et internes (de risques, de coûts, de délais…) et en exploitant au mi…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Urbaniste Des Systèmes D’Information' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Gère (construction, mise à jour et évolution) la cartographie du système d’information ou du', NULL, 1);
@@ -169,7 +112,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la séc
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 2, 0, 8);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gouvernance des systèmes d''information' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 9);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Responsable Du Système D’Information « Métier »', 'Il pilote l’alignement du système d’information du métier sur les orientations stratégiques et sur les processus métiers. Il propose des scénarios d’évolution du système d’information cohérents avec les objectifs et les processus définis. Il garantit la cohérence globale et dynamique ainsi que la pertinence et la performance du SI du Métier.', 'Il pilote l’alignement du système d’information du métier sur les orientations stratégiques et sur les processus métiers. Il propose des scénarios d’évolution du système d’information cohérents avec les objectifs et les processus définis. I…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Responsable Du Système D’Information « Métier »' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Contribue  à  l’optimisation  des  processus  métiers,  des  données,  des  applications  et  des', NULL, 1);
@@ -207,7 +150,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la qual
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 2, 0, 9);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gouvernance des systèmes d''information' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 5, 0, 10);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Gestionnaire D’Applications', 'Il a pour objectif d’améliorer la performance, de contribuer au fonctionnement et de participer à la gestion et à l’évolution du système d’information du Métier. Il s''assure de la mise en cohérence du SI Métier avec les orientations, les modes de fonctionnement et les processus définis au niveau du Métier.', 'Il a pour objectif d’améliorer la performance, de contribuer au fonctionnement et de participer à la gestion et à l’évolution du système d’information du Métier. Il s''assure de la mise en cohérence du SI Métier avec les orientations, les mo…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Gestionnaire D’Applications' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Représente les métiers ou maîtres d’ouvrage lors de la vie courante des systèmes.', NULL, 1);
@@ -244,7 +187,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion des risque
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 2, 0, 8);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la qualité des TIC' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 9);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Chargé D’Affaires Internes', 'Il est l’animateur de la relation contractuelle avec la DSI et représente le client (direction, maîtrise d’ouvrage, utilisateur) auprès des différents services de la DSI et des prestataires externes. Il fédère et anime les relations entre les clients et la DSI. Il met en lumière les dysfonctionnements dans le cadre de ces relations et propose des améliorations aux acteurs du système d’information.', 'Il est l’animateur de la relation contractuelle avec la DSI et représente le client (direction, maîtrise d’ouvrage, utilisateur) auprès des différents services de la DSI et des prestataires externes. Il fédère et anime les relations entre l…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Chargé D’Affaires Internes' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'À  l’écoute  des  métiers,  il  les  informe  et  conseille  sur  les  services  possibles,  les  formations', NULL, 1);
@@ -274,7 +217,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la rela
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 4, 0, 6);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la qualité des TIC' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 7);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Architecte D’Entreprise', 'L’architecte d’entreprise a double dimension : SI et métier. Il garantit la cohérence et l’optimisation des réalisations SI et porte les projets de transformation ainsi que les études et exigences d’architecture du SI. Il assure la cohérence du choix des projets, en termes d’évaluation, de conception et d’implémentation. Il s’assure également que ce choix de projets s’intègre de manière cohérente, efficace et durable et en respectant les standards de l’entreprise (notamment sécurité et maîtrise des risques) dans l’architecture du SI. Il projette, définit et pilote l’évolution de l’architecture du SI dans son ensemble, pour répondre aux besoins des directions métiers, et ceci en cohérence avec la stratégie de l’entreprise. Il porte l’innovation auprès de l’ensemble des parties prenantes de l’entreprise au regard de l’architecture existante du SI..', 'L’architecte d’entreprise a double dimension : SI et métier. Il garantit la cohérence et l’optimisation des réalisations SI et porte les projets de transformation ainsi que les études et exigences d’architecture du SI. Il assure la cohérenc…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Architecte D’Entreprise' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Contribue à l’élaboration du plan stratégique SI.', NULL, 1);
@@ -308,7 +251,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Amélioration des 
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 8);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gouvernance des systèmes d''information' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 5, 0, 9);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du système d’information' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Pilotage, organisation et gestion des évolutions du SI' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Responsable Green It', 'Il appréhende l’informatique sous l’angle des enjeux environnementaux, sociaux et économiques pour construire un système d’information (éco)responsable et aider l''entreprise à évoluer vers des modèles plus soutenables grâce au numérique. Il élabore, applique et fait évoluer la stratégie Développement Durable (RSE/CSR) de l’entreprise au niveau du système d’information, en relation avec le Directeur des Système d’Information (DSI/CIO), le Directeur du Développement Durable (DDD/SDO), et le comité exécutif de l’entreprise. Il pilote et anime la stratégie Green IT de l’entreprise.', 'Il appréhende l’informatique sous l’angle des enjeux environnementaux, sociaux et économiques pour construire un système d’information (éco)responsable et aider l''entreprise à évoluer vers des modèles plus soutenables grâce au numérique. Il…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Responsable Green It' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Clarifie le périmètre du green IT au sein de son organisation et le connecte à sa politique RSE.', NULL, 1);
@@ -1054,7 +997,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Développement d''
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 4, 0, 7);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Amélioration des processus' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 8);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance aux utilisateurs' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Assistant Fonctionnel', 'Référent Métier, il apporte à l’utilisateur final une aide en matière d’utilisation de logiciels, en période de déploiement ou en régime de croisière, et contribue à résoudre toute difficulté que celui-ci rencontre. Il signale aux acteurs projet les demandes d''évolutions et les dysfonctionnements. À la jonction de la DSI (maître d’œuvre) et du client (direction, maîtrise d’ouvrage, utilisateurs), il intervient directement auprès des utilisateurs. Plutôt spécialisé sur un métier ou un processus, il aide et conseille l’utilisateur final à bien utiliser ses outils logiciels. Il contribue à la conduite du changement.', 'Référent Métier, il apporte à l’utilisateur final une aide en matière d’utilisation de logiciels, en période de déploiement ou en régime de croisière, et contribue à résoudre toute difficulté que celui-ci rencontre. Il signale aux acteurs p…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Assistant Fonctionnel' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Aide à la définition des formations et participe à leur réalisation.', NULL, 1);
@@ -1084,7 +1027,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de l''info
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 6);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Identification des besoins' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 7);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance aux utilisateurs' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Technicien Support Utilisateurs', 'Il assure la réception des incidents (ruptures du service habituellement rendu) ou difficultés déclarés par les utilisateurs. Il les fait prendre en charge par les ressources capables d’y apporter une solution. Il contribue, au premier niveau, à la résolution des incidents nuisant à la qualité et à la continuité de service. À la différence de l’assistant fonctionnel, il traite tout type d’incidents et n’est pas toujours présent auprès des utilisateurs.', 'Il assure la réception des incidents (ruptures du service habituellement rendu) ou difficultés déclarés par les utilisateurs. Il les fait prendre en charge par les ressources capables d’y apporter une solution. Il contribue, au premier nive…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Technicien Support Utilisateurs' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Prend en compte les appels des utilisateurs.', NULL, 1);
@@ -1113,7 +1056,7 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la rela
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 6);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la sécurité de l''information' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 2, 0, 7);
-SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance aux utilisateurs' LIMIT 1);
+SET @famille_id = (SELECT id FROM famille_si WHERE nom='Support et assistance' LIMIT 1);
 INSERT INTO metier_si (famille_id, titre, description, mission_courte, actif) VALUES (@famille_id, 'Expert Méthode Et Outils / Qualité', 'Garant de son domaine d’expertise, il peut intervenir directement sur tout ou partie d’un projet. En tant que référent dans son domaine, il assure un rôle de conseil, d’assistance, d’information, de formation et d’alerte sur les risques. Il effectue un travail de veille technologique sur son domaine et propose des évolutions qu’il juge nécessaires. Il est l''interlocuteur reconnu des experts externes (fournisseurs, partenaires.).', 'Garant de son domaine d’expertise, il peut intervenir directement sur tout ou partie d’un projet. En tant que référent dans son domaine, il assure un rôle de conseil, d’assistance, d’information, de formation et d’alerte sur les risques. Il…', 1);
 SET @metier_id = (SELECT id FROM metier_si WHERE famille_id=@famille_id AND titre='Expert Méthode Et Outils / Qualité' LIMIT 1);
 INSERT INTO activite_si (metier_id, libelle, description, ordre) VALUES (@metier_id, 'Assiste et conseille dans le choix et l’utilisation des méthodes.', NULL, 1);
