@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import ResultSection from './ResultSection'
 import { DomainScore } from '../../types/survey'
-import { domainToSlug } from '../../utils/formations'
 
 interface SkillsNeedsSectionProps {
   scores: DomainScore[]
@@ -40,7 +39,6 @@ const SkillsNeedsSection = ({ scores, top3, topDomain, q5Responses, warnings }: 
                   <th className="px-4 py-2 text-left">Domaine</th>
                   <th className="px-4 py-2 text-right">Score</th>
                   <th className="px-4 py-2 text-right">% pondéré</th>
-                  <th className="px-4 py-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -49,14 +47,6 @@ const SkillsNeedsSection = ({ scores, top3, topDomain, q5Responses, warnings }: 
                     <td className="px-4 py-2 font-medium text-slate-800">{entry.domain}</td>
                     <td className="px-4 py-2 text-right text-slate-600">{entry.score}</td>
                     <td className="px-4 py-2 text-right text-slate-600">{formatPercentage(entry, scores)}%</td>
-                    <td className="px-4 py-2 text-right">
-                      <Link
-                        className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white"
-                        to={`/formations/${domainToSlug(entry.domain)}`}
-                      >
-                        Voir formations
-                      </Link>
-                    </td>
                   </tr>
                 ))}
               </tbody>

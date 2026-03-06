@@ -60,22 +60,4 @@ public class CompetenceController {
         service.delete(id);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/{id}/formations/{formationId}")
-    public ResponseEntity<Competence> linkFormation(@PathVariable Long id, @PathVariable Long formationId) {
-        try {
-            return ResponseEntity.ok(service.linkFormation(id, formationId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/{id}/formations/{formationId}")
-    public ResponseEntity<Competence> unlinkFormation(@PathVariable Long id, @PathVariable Long formationId) {
-        try {
-            return ResponseEntity.ok(service.unlinkFormation(id, formationId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 }

@@ -1,84 +1,116 @@
-# Monorepo Spring Boot + React (Vite)
+# Projet Tutoré RH - Gestion du Référentiel Métiers SI
 
-## Structure
+Ce projet est une application de gestion des ressources humaines concentrée sur le référentiel des métiers du Système d'Information (SI), basé sur la nomenclature **Cigref 2022**.
 
-```
-Projet-tutore-RH
-├─ backend      → API Spring Boot / Swagger / endpoints Ollama
-├─ frontend     → application React + Vite
-└─ pom.xml      → parent Maven
-```
+## 🏗️ Structure du Projet
 
-## Prérequis
+Le projet est un monorepo contenant :
+- **`/backend`** : API Spring Boot 3, JPA, H2, Swagger.
+- **`/frontend`** : Interface React moderne avec Vite, TypeScript et CSS de pointe.
 
-- Node.js 18+ et npm 9+ pour le frontend.
-- JDK 21 (obligatoire : la compilation Maven échoue sinon).
-- Maven wrapper (`./mvnw`) inclus dans ce dépôt.
-- (Optionnel) [Ollama](https://ollama.com/) si vous souhaitez utiliser l’IA locale pour classer les CV.
+---
 
-## Installation des dépendances frontend
+## 🚀 Lancement Rapide
 
-```bash
-cd frontend
-npm install
-```
+### 1. Prérequis
+- **JDK 21** (impératif pour la compilation).
+- **Node.js 18+**.
+- **Maven** (utilisez le wrapper `./mvnw` fourni).
 
-Cette commande est à exécuter une seule fois (ou après un `git pull` qui ajoute de nouvelles dépendances).
-
-## Lancer le frontend (Vite)
-
-```bash
-cd frontend
-npm run dev
-```
-
-Par défaut, Vite sert l’application sur [http://localhost:5173](http://localhost:5173) avec rechargement à chaud.  
-Le proxy défini dans `vite.config.ts` enverra les requêtes `/rest/**` vers le backend Spring Boot (port 8989), pensez donc à le démarrer aussi pour éviter les erreurs `ECONNREFUSED`.
-
-## Lancer le backend Spring Boot
-
+### 2. Démarrer le Backend
 Depuis la racine du projet :
-
 ```bash
 ./mvnw --projects backend spring-boot:run
 ```
+*L'application est configurée sur le port **8989**.*
 
-- L’API est disponible sur [http://localhost:8989](http://localhost:8989).
-- Console H2 : [http://localhost:8989/h2-console](http://localhost:8989/h2-console)
-- Swagger UI : [http://localhost:8989/swagger-ui/index.html](http://localhost:8989/swagger-ui/index.html)
-- Endpoints Ollama : `/rest/ollama/status` et `/rest/ollama/warmup`
+### 3. Démarrer le Frontend
+Dans un autre terminal :
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*L'interface est disponible sur [http://localhost:5173](http://localhost:5173).*
 
-> ⚠️ Assurez-vous que `java -version` retourne bien une version 21+, sinon Maven refusera de compiler (`release version 21 not supported`).
+---
 
-## Utiliser l’IA locale (Ollama)
+## 📊 Modèle de Données (Référentiel)
 
-1. Installer Ollama et lancer le service :
-   ```bash
-   ollama serve
-   ```
-2. Option facultative mais recommandée : précharger le modèle Mistral dans un terminal séparé
-   ```bash
-   ollama run mistral
-   ```
-3. Dans l’interface (section “IA locale”), cliquez sur “Vérifier l’état d’Ollama” puis “Lancer / charger Mistral”.  
-   L’indicateur passe au vert quand le backend confirme que le modèle est disponible.
+Voici le diagramme de classe simplifié de la gestion du référentiel métiers :
 
-Les consignes RH que vous tapez dans le champ prévu seront injectées dans le prompt envoyé à l’IA, directement depuis le frontend.
+```mermaid
+classDiagram
+    class Famille {
+        Long id
+        String nom
+        String description
+        Integer ordre
+    }
+    class Metier {
+        Long id
+        String titre
+        String description
+        String missionCourte
+        Boolean actif
+    }
+    class Activite {
+        Long id
+        String libelle
+        String description
+        Integer ordre
+    }
+    class CompetenceSI {
+        Long id
+        String nom
+        String description
+    }
+    class MetierCompetenceSI {
+        Integer niveauRequis
+        Boolean obligatoire
+        Integer ordre
+    }
 
-## Build complet
+    Famille "1" -- "*" Metier : contient
+    Metier "1" -- "*" Activite : possède
+    Metier "1" -- "*" MetierCompetenceSI : requiert
+    MetierCompetenceSI "*" -- "1" CompetenceSI : référence
+```
 
-- Générer le frontend optimisé :
-  ```bash
-  cd frontend
-  npm run build
-  ```
-- Construire le backend + copier le build front dans `src/main/resources/public` :
-  ```bash
-  ./mvnw clean install
-  ```
+---
 
-Le package Spring Boot résultant embarque les assets du frontend (dossier `frontend/target/dist`) et peut être démarré seul sur le port 8989.
+## 🛠️ Outils de Développement
 
-## Déploiement (rappel)
+### 🔍 Swagger UI (Exploration API)
+L'API est documentée via Swagger. Vous pouvez tester tous les endpoints (GET, POST, etc.) directement depuis votre navigateur.
+- **URL** : [http://localhost:8989/swagger-ui/index.html](http://localhost:8989/swagger-ui/index.html)
 
-Le dépôt contient déjà un bouton “Deploy to Koyeb” pour publier rapidement l’application. Pensez simplement à fournir un JDK 21 sur l’environnement cible et, si vous voulez l’IA locale, à installer/configurer Ollama sur cette même machine.
+### 🗄️ Console H2 (Base de données)
+Le projet utilise une base de données H2 en mémoire. Pour visualiser ou manipuler les données manuellement :
+- **URL** : [http://localhost:8989/h2-console](http://localhost:8989/h2-console)
+- **JDBC URL** : `jdbc:h2:mem:testdb`
+- **User** : `sa`
+- **Password** : *(laisser vide)*
+
+> **Note** : Vous pouvez également vous connecter via un client externe (IntelliJ, DBeaver) en utilisant : `jdbc:h2:tcp://localhost:9092/mem:testdb`.
+
+---
+
+## 🤖 Intelligence Artificielle (Ollama)
+
+Si vous avez **Ollama** installé localement avec le modèle `mistral` :
+1. Lancez Ollama : `ollama serve`.
+2. L'application pourra classer automatiquement les CV en fonction du référentiel métier chargé.
+
+---
+
+## 📦 Build de Production
+
+Pour générer un seul fichier JAR contenant le backend et le frontend :
+```bash
+# Dans frontend
+npm run build
+# À la racine
+./mvnw clean install
+```
+Le JAR généré se trouvera dans `backend/target/backend-0.0.1-SNAPSHOT.jar`.

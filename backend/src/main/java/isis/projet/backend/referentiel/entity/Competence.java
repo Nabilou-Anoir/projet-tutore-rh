@@ -1,10 +1,7 @@
 package isis.projet.backend.referentiel.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import isis.projet.backend.formation.entity.Formation;
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class Competence {
@@ -27,19 +24,6 @@ public class Competence {
 
     @Column(name = "domaine_id", insertable = false, updatable = false)
     private Long domaineId;
-
-    @ManyToMany
-    @JoinTable(name = "competence_formation", joinColumns = @JoinColumn(name = "competence_id"), inverseJoinColumns = @JoinColumn(name = "formation_id"))
-    private Set<Formation> formations = new HashSet<>();
-
-    public Competence() {
-    }
-
-    public Competence(String nom, String description, String niveauAttendu) {
-        this.nom = nom;
-        this.description = description;
-        this.niveauAttendu = niveauAttendu;
-    }
 
     public Long getId() {
         return id;
@@ -83,13 +67,5 @@ public class Competence {
 
     public Long getDomaineId() {
         return domaineId;
-    }
-
-    public Set<Formation> getFormations() {
-        return formations;
-    }
-
-    public void setFormations(Set<Formation> formations) {
-        this.formations = formations;
     }
 }
