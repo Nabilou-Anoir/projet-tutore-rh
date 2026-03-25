@@ -1,4 +1,4 @@
-import type { Famille, Metier, Activite, CompetenceSI, MetierCompetence } from '../types/referentiel'
+import type { Famille, Metier, Activite, CompetenceSI, MetierCompetence, Formation } from '../types/referentiel'
 
 const BASE = '/api'
 
@@ -103,4 +103,16 @@ export const metierCompetenceApi = {
         request<MetierCompetence>(`${BASE}/metiers/${metierId}/competences/${competenceId}`, { method: 'PUT', body: JSON.stringify(data) }),
     remove: (metierId: number, competenceId: number) =>
         request<void>(`${BASE}/metiers/${metierId}/competences/${competenceId}`, { method: 'DELETE' }),
+}
+
+// ─── Formations ──────────────────────────────────────────────────────────────
+export const formationApi = {
+    list: () => request<Formation[]>(`${BASE}/formations`),
+    getById: (id: number) => request<Formation>(`${BASE}/formations/${id}`),
+    getByCompetenceId: (competenceId: number) => request<Formation[]>(`${BASE}/formations/competence/${competenceId}`),
+    create: (data: Omit<Formation, 'id'>) =>
+        request<Formation>(`${BASE}/formations`, { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: number, data: Partial<Formation>) =>
+        request<Formation>(`${BASE}/formations/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: number) => request<void>(`${BASE}/formations/${id}`, { method: 'DELETE' }),
 }

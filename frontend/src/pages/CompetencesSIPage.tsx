@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { competenceSIApi } from '../utils/metiers.service'
 import type { CompetenceSI, Metier } from '../types/referentiel'
+import FormationModal from '../components/Referentiel/FormationModal'
 
 export default function CompetencesSIPage() {
     const [competences, setCompetences] = useState<CompetenceSI[]>([])
@@ -22,6 +23,8 @@ export default function CompetencesSIPage() {
     const [selectedCompForMetiers, setSelectedCompForMetiers] = useState<CompetenceSI | null>(null)
     const [metiersByComp, setMetiersByComp] = useState<Record<number, Metier[]>>({})
     const [loadingMetiers, setLoadingMetiers] = useState<Record<number, boolean>>({})
+
+    const [selectedCompForFormations, setSelectedCompForFormations] = useState<CompetenceSI | null>(null)
 
     const notify = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(null), 3000) }
 
@@ -106,6 +109,10 @@ export default function CompetencesSIPage() {
                     className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
                     + Nouvelle compétence
                 </button>
+                <Link to="/referentiel/formations"
+                    className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                    🎓 Gérer les formations
+                </Link>
             </div>
 
             <p className="text-sm text-slate-500"><span className="font-bold text-slate-900">{total}</span> compétence{total !== 1 ? 's' : ''}</p>
@@ -149,8 +156,14 @@ export default function CompetencesSIPage() {
                         >
                             <div className="flex items-center justify-between px-6 py-4 cursor-pointer group" onClick={() => openMetiersModal(c)}>
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                    <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors flex items-center gap-2">
                                         {c.nom}
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); setSelectedCompForFormations(c) }}
+                                            className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                        >
+                                            Formations 🎓
+                                        </button>
                                     </h3>
                                     {c.description && <p className="text-sm text-slate-500 mt-0.5">{c.description}</p>}
                                 </div>
@@ -221,6 +234,13 @@ export default function CompetencesSIPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {selectedCompForFormations && (
+                <FormationModal 
+                    competence={selectedCompForFormations} 
+                    onClose={() => setSelectedCompForFormations(null)} 
+                />
             )}
         </div>
     )

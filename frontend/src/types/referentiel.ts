@@ -47,9 +47,19 @@ export interface MetierCompetence {
   ordre?: number
 }
 
+export interface Formation {
+  id: number
+  nom: string
+  description?: string
+  url?: string
+  organisme?: string
+  competenceIds: number[]
+}
+
 export const NIVEAUX_SI: { value: number; label: string; color: string }[] = [
   { value: 1, label: 'Notions', color: 'bg-slate-100 text-slate-600' },
   { value: 2, label: 'Intermédiaire', color: 'bg-amber-100 text-amber-700' },
   { value: 3, label: 'Avancé', color: 'bg-orange-100 text-orange-700' },
   { value: 4, label: 'Expert', color: 'bg-red-100 text-red-700' },
+  { value: 5, label: 'Expert', color: 'bg-red-100 text-red-700' },
 ]

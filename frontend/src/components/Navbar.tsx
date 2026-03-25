@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 const navLinks = [
     { to: '/', label: 'Dashboard', icon: '📊' },
     { to: '/referentiel', label: 'Référentiel', icon: '🗂️' },
+    { to: '/referentiel/comparateur', label: 'Comparateur', icon: '⚖️' },
+    { to: '/referentiel/formations', label: 'Formations', icon: '🎓' },
     { to: '/cv-matcher', label: 'Tri CV IA', icon: '🤖' },
 ]
 

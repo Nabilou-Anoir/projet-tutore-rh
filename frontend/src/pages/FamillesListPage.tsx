@@ -81,9 +81,9 @@ export default function FamillesListPage() {
                 className="rounded-3xl p-8 text-white shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0ea5e9 100%)' }}
             >
-                <h1 className="text-3xl font-bold">Référentiel des Métiers SI</h1>
+                <h1 className="text-3xl font-bold">Référentiel des Métiers en système d'information en santé</h1>
                 <p className="mt-3 max-w-3xl text-base text-blue-100">
-                    Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information.
+                    Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information en Santé.
                 </p>
             </header>
 

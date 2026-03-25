@@ -1,9 +1,3 @@
--- Initialisation des tables
-INSERT INTO Country(id, code, name) VALUES
-    (1, 'FR', 'France'),
-    (2, 'UK', 'United Kingdom'),
-    (3, 'US', 'United States of America');
-ALTER TABLE Country ALTER COLUMN id RESTART WITH 4;
 
 -- ===================== DOMAINES DE COMPETENCES =====================
 INSERT INTO domaine_competence(id, nom, description, icone) VALUES
@@ -1800,3 +1794,1652 @@ SET @competence_id = (SELECT id FROM competence_si WHERE nom='Identification des
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 3, 0, 5);
 SET @competence_id = (SELECT id FROM competence_si WHERE nom='Gestion de la relation client' LIMIT 1);
 INSERT INTO metier_competence_si (metier_id, competence_id, niveau_requis, obligatoire, ordre) VALUES (@metier_id, @competence_id, 4, 0, 6);
+-- Formations initiales pour la table formation
+-- Généré le 2026-03-21 à partir de pages de catalogue actives / récentes
+-- Compatibilité : H2 / SQL standard simple
+-- Hypothèse : les tables formation, competence_si et formation_competence existent déjà.
+
+-- =========================
+-- 1. INSERTS FORMATION
+-- =========================
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information',
+'Formation continue du Cnam orientée architecture d''entreprise et urbanisation du SI. Couvre notamment l''architecture d''entreprise, les méthodologies SI, l''urbanisation, le contrôle d''accès et la gestion des identités. Source catalogue active en 2026.',
+'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/certificat-de-competence-architecte-dentreprise-et-urbaniste-des-systemes-dinformation-1',
+'Cnam'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Mastère Spécialisé Architecte Digital d''Entreprise',
+'Mastère Spécialisé de Télécom Paris orienté transformation numérique, architecture SI et architecture d''entreprise. Formation reconnue Conférence des Grandes Écoles, catalogue actif 2026.',
+'https://www.telecom-paris.fr/fr/masteres-specialises/formation-architecte-digital-entreprise',
+'Télécom Paris'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Architecture en cybersécurité',
+'Formation certifiante Télécom Paris Executive Education centrée sur la conception d''architectures de sécurité, la gestion des risques, l''audit de sécurité, la sécurité cloud et les aspects réglementaires. Catalogue actif 2026.',
+'https://executive-education.telecom-paris.fr/fr/architecture-cybersecurite',
+'Télécom Paris Executive Education'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes',
+'Certificat du Cnam orienté sécurité des données, des réseaux et des systèmes. Pertinent pour les compétences SSI, gestion des risques, sécurité des infrastructures et conformité. Page catalogue active en 2026.',
+'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/gestionnaire-de-la-securite-des-donnees-des-systemes-et-des-reseaux-3',
+'Cnam'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Certificat de compétence Analyste Cloud',
+'Certificat du Cnam orienté cloud computing, systèmes répartis, architecture cloud, intégration d''applications et sécurité du cloud. Référencé dans le catalogue informatique du Cnam en 2026.',
+'https://informatique.cnam.fr/fr/spip.php?rubrique62=',
+'Cnam'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Microsoft Azure - Administration',
+'Formation ENI Service préparant à l''examen AZ-104 Microsoft Azure Administrator. Couvre administration Azure, gouvernance, identités, réseau, stockage, machines virtuelles et supervision. Page catalogue active en 2025/2026.',
+'https://www.eni-service.fr/formation/formation-microsoft-azure-administration-maz-104t00/',
+'ENI Service'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Certificat de spécialisation Intelligence artificielle',
+'Certificat du Cnam orienté IA, IA avancée et exploitation de données multimédia. Adapté aux compétences science des données, innovation, modélisation et analyse prédictive. Catalogue informatique actif en 2026.',
+'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/certificat-de-specialisation-intelligence-artificielle-3',
+'Cnam'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Formation Data Engineer',
+'Formation Data Engineer de DataScientest / Liora couvrant Python, pipelines de données, orchestration, Spark, Airflow et AWS. Adaptée aux infrastructures data et au traitement industriel de la donnée. Catalogue actif en 2026.',
+'https://datascientest.com/formation-data-engineer',
+'DataScientest'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Développeur Full-Stack - Java et Angular',
+'Parcours OpenClassrooms couvrant analyse des besoins, architecture technique, développement Java / Angular, tests, maintenance, CI/CD et déploiement. Catalogue actif en 2026.',
+'https://openclassrooms.com/fr/paths/2460-developpeur-full-stack-java-et-angular',
+'OpenClassrooms'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'ITIL 4 Foundation',
+'Formation de référence en gestion des services IT couvrant incidents, demandes, amélioration continue, valeur de service et support. Page catalogue active en 2026.',
+'https://www.eni-service.fr/formation/formation-itil-4-foundation/',
+'ENI Service'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Mastère Spécialisé Manager des Systèmes d''Information',
+'Mastère Spécialisé Télécom Paris / ESSEC orienté stratégie SI, gouvernance, management, pilotage et transformation numérique. Catalogue actif en 2026.',
+'https://www.telecom-paris.fr/fr/masteres-specialises/formation-manager-systemes-information',
+'Télécom Paris / ESSEC'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Gestion de projet informatique',
+'Formation du Cnam couvrant expression des besoins, cahier des charges, planification, gouvernance MOA/MOE, pilotage de projet et gestion des risques. Page catalogue active en 2026.',
+'https://www.cnam.fr/formation/gestion-de-projet-informatique',
+'Cnam'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'COBIT 2019 Foundation',
+'Formation ORSYS orientée gouvernance des systèmes d''information, alignement stratégique, pilotage, contrôle et création de valeur. Page catalogue active en 2026.',
+'https://www.orsys.fr/formation/formation-cobit-2019-certification-cobit2019-foundation',
+'ORSYS'
+);
+
+INSERT INTO formation (nom, description, url, organisme) VALUES (
+'Délégué à la protection des données - DPO',
+'Formation AFNOR Compétences pour la fonction DPO, couvrant RGPD, gouvernance des données personnelles, conformité, analyses d''impact et gestion des risques. Page catalogue active en 2026.',
+'https://competences.afnor.org/formations/delegue-a-la-protection-des-donnees---dpo',
+'AFNOR Compétences'
+);
+-- Formations Cigref / SI de santé
+-- Généré automatiquement pour couvrir l'ensemble des compétences de la table competence_si
+-- Compatible H2 (insertions idempotentes via WHERE NOT EXISTS)
+
+-- Certificat de compétence Architecte d'entreprise et urbaniste des systèmes d'information / Cnam
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information',
+  'Catalogue actif. Formation continue orientée architecture d’entreprise, urbanisation du SI, méthodologies SI et études d’architecture. Compétences cibles : alignement stratégique, architecture, gouvernance, recueil des besoins, veille.',
+  'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/certificat-de-competence-architecte-dentreprise-et-urbaniste-des-systemes-dinformation-1',
+  'Cnam'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information');
+
+-- Mastère Spécialisé Architecte Digital d’Entreprise / Télécom Paris
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Mastère Spécialisé Architecte Digital d’Entreprise',
+  'Catalogue actif 2026-2027. Mastère spécialisé accrédité CGE, temps partiel. Couvre transformation digitale, architecture SI, innovation, urbanisation, architecture fonctionnelle et technique.',
+  'https://www.telecom-paris.fr/fr/masteres-specialises/formation-architecte-digital-entreprise',
+  'Télécom Paris'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Mastère Spécialisé Architecte Digital d’Entreprise');
+
+-- Architecture en cybersécurité / Télécom Paris Executive Education
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Architecture en cybersécurité',
+  'Formation certifiante active au catalogue. Axée architecture de sécurité, IAM, analyse de risque, audit, cloud security et DevSecOps.',
+  'https://executive-education.telecom-paris.fr/fr/formations-certifiantes',
+  'Télécom Paris Executive Education'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Architecture en cybersécurité');
+
+-- Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes / Cnam
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes',
+  'Catalogue actif, mis à jour en 2026. Certificat orienté sécurité des données, systèmes et réseaux, avec une approche SSI opérationnelle.',
+  'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/gestionnaire-de-la-securite-des-donnees-des-systemes-et-des-reseaux-3',
+  'Cnam'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes');
+
+-- Certificat de compétence Analyste Cloud / Cnam
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Certificat de compétence Analyste Cloud',
+  'Catalogue actif. Certificat couvrant systèmes répartis, architectures cloud, intégration d’applications, exploitation et sécurité.',
+  'https://www.cnam.fr/formation/logiciels-outils-applications-services/service-web/certificat-de-competence-analyste-cloud-5',
+  'Cnam'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Certificat de compétence Analyste Cloud');
+
+-- Microsoft Azure – Administration (AZ-104) / ENI Service
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Microsoft Azure – Administration (AZ-104)',
+  'Cours officiel Microsoft préparant à la certification Azure Administrator Associate. Administration Azure, réseau, stockage, sécurité, supervision et exploitation.',
+  'https://www.eni-service.fr/formation/formation-microsoft-azure-administration-2/',
+  'ENI Service'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Microsoft Azure – Administration (AZ-104)');
+
+-- Certificat de spécialisation Intelligence artificielle / Cnam
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Certificat de spécialisation Intelligence artificielle',
+  'Catalogue actif. Certificat orienté IA, IA avancée et exploitation de données multimédia pour projets d’analyse et de modélisation.',
+  'https://www.cnam.fr/formation/electronique-informatique-telecommunication/informatique-systemes-dinformation-et-numerique/certificat-de-specialisation-intelligence-artificielle-3',
+  'Cnam'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Certificat de spécialisation Intelligence artificielle');
+
+-- Formation Data Engineer / DataScientest / Liora
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Formation Data Engineer',
+  'Catalogue actif. Formation data engineering couvrant Python, Airflow, Spark, AWS, pipelines, orchestration et industrialisation des flux.',
+  'https://liora.io/formation/data-ia/data-engineer',
+  'DataScientest / Liora'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Formation Data Engineer');
+
+-- Développeur Full-Stack - Java et Angular / OpenClassrooms
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Développeur Full-Stack - Java et Angular',
+  'Parcours actif en ligne. Analyse des besoins, architecture technique, développement Java/Spring Boot et Angular, tests, CI/CD, Docker et déploiement.',
+  'https://openclassrooms.com/fr/paths/2460-developpeur-full-stack-java-et-angular',
+  'OpenClassrooms'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Développeur Full-Stack - Java et Angular');
+
+-- ITIL® 4 Foundation / ENI Service
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'ITIL® 4 Foundation',
+  'Formation active au catalogue. Référentiel ITSM pour incidents, problèmes, demandes, services, amélioration continue et valeur des services.',
+  'https://www.eni-service.fr/formation/formation-itil-4-foundation/',
+  'ENI Service'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'ITIL® 4 Foundation');
+
+-- Mastère Spécialisé Manager des Systèmes d’Information / Télécom Paris / ESSEC
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Mastère Spécialisé Manager des Systèmes d’Information',
+  'Catalogue actif 2026-2027. Mastère spécialisé orienté stratégie, management, pilotage de portefeuille, finance, organisation, qualité et transformation numérique.',
+  'https://www.telecom-paris.fr/fr/masteres-specialises/formation-manager-systemes-information',
+  'Télécom Paris / ESSEC'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Mastère Spécialisé Manager des Systèmes d’Information');
+
+-- Gestion de projet informatique / Cnam
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Gestion de projet informatique',
+  'Catalogue actif. Cours sur expression du besoin, cahier des charges, rôles MOA/MOE, planification, estimation, risques, budget et pilotage.',
+  'https://www.cnam.fr/formation/gestion-de-projet-informatique',
+  'Cnam'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Gestion de projet informatique');
+
+-- COBIT® 2019 Foundation, certification ISACA / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'COBIT® 2019 Foundation, certification ISACA',
+  'Formation active au catalogue 2026. Référentiel de gouvernance IT orienté alignement stratégique, création de valeur, maîtrise des risques et performance.',
+  'https://www.orsys.fr/formation/formation-cobit-2019-certification-cobit2019-foundation',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'COBIT® 2019 Foundation, certification ISACA');
+
+-- Délégué à la protection des données - DPO / AFNOR Compétences
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Délégué à la protection des données - DPO',
+  'Cycle métier DPO actif au catalogue. Conformité RGPD, analyse d’impact, gestion des risques, droits des personnes, politique et gouvernance de la donnée.',
+  'https://competences.afnor.org/formations/delegue-a-la-protection-des-donnees---dpo',
+  'AFNOR Compétences'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Délégué à la protection des données - DPO');
+
+-- UX-PM, niveau 1 : adoption de l'UX, certification / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'UX-PM, niveau 1 : adoption de l''UX, certification',
+  'Catalogue actif. Formation certifiante d’introduction à l’UX, centrée expérience utilisateur, démarche centrée utilisateur, outils UX et compréhension des besoins.',
+  'https://www.orsys.fr/formation-ux-pm-certification-user-experience-niveau1.html',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'UX-PM, niveau 1 : adoption de l''UX, certification');
+
+-- Sobriété numérique et éco-conception / AFNOR Compétences
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Sobriété numérique et éco-conception',
+  'Catalogue actif. Formation dédiée à la sobriété numérique, à l’écoconception et à l’évaluation des impacts environnementaux des projets numériques.',
+  'https://competences.afnor.org/formations/sobriete-numerique-et-eco-conception',
+  'AFNOR Compétences'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Sobriété numérique et éco-conception');
+
+-- Parcours certifiant Acheteur / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Parcours certifiant Acheteur',
+  'Catalogue actif. Parcours certifiant couvrant sourcing, RFI/RFP/RFQ, segmentation fournisseurs, négociation, KPI achats et pilotage du panel fournisseurs.',
+  'https://www.orsys.fr/formation-cycle-certifiant-acheteur.html',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Parcours certifiant Acheteur');
+
+-- Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats',
+  'Catalogue actif. Formation centrée gestion contractuelle, analyse des clauses, risques, gouvernance de l’exécution contractuelle et pilotage des engagements.',
+  'https://www.orsys.fr/formation/formation-contract-management-mettre-en-oeuvre',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats');
+
+-- Concevoir et piloter son plan marketing digital / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Concevoir et piloter son plan marketing digital',
+  'Catalogue actif. Formation de marketing digital couvrant plan marketing, visibilité, communication digitale, indicateurs et valorisation des offres.',
+  'https://www.orsys.fr/formation/formation-concevoir-piloter-son-plan-marketing-digital.html',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Concevoir et piloter son plan marketing digital');
+
+-- Plans de continuité des activités critiques de l'entreprise / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Plans de continuité des activités critiques de l''entreprise',
+  'Catalogue actif. Formation sur PCA/PRA, BIA, stratégie de continuité, analyse des risques, gouvernance et gestion de crise.',
+  'https://www.orsys.fr/formation-plan-secours-continuite.html',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Plans de continuité des activités critiques de l''entreprise');
+
+-- Formation de formateurs / ORSYS
+INSERT INTO formation (nom, description, url, organisme)
+SELECT
+  'Formation de formateurs',
+  'Catalogue actif. Formation destinée aux professionnels amenés à former, avec construction d’objectifs pédagogiques, animation, supports et évaluation.',
+  'https://www.orsys.fr/formation-formation-formateurs.html',
+  'ORSYS'
+WHERE NOT EXISTS (SELECT 1 FROM formation WHERE nom = 'Formation de formateurs');
+
+-- Liaison compétences / Certificat de compétence Architecte d'entreprise et urbaniste des systèmes d'information
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Systèmes d’information et alignement stratégique métier'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception de l''architecture'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Veille technologique'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gouvernance des systèmes d''information'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de l''information et de la connaissance'
+WHERE f.nom = 'Certificat de compétence Architecte d''entreprise et urbaniste des systèmes d''information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Mastère Spécialisé Architecte Digital d’Entreprise
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Systèmes d’information et alignement stratégique métier'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception de l''architecture'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Innovation'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Veille technologique'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gouvernance des systèmes d''information'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des changements métier'
+WHERE f.nom = 'Mastère Spécialisé Architecte Digital d’Entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Architecture en cybersécurité
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie de sécurité de l''information'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception de l''architecture'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Veille technologique'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Amélioration des processus'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie pour la qualité des TIC'
+WHERE f.nom = 'Architecture en cybersécurité'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie de sécurité de l''information'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Production de la documentation'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Veille technologique'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des problèmes'
+WHERE f.nom = 'Certificat de compétence Gestionnaire de la sécurité des données, des réseaux et des systèmes'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Certificat de compétence Analyste Cloud
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Ingénierie des systèmes TIC'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception de l''architecture'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Déploiement de la solution'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Intégration des composants'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des systèmes'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Fourniture de services'
+WHERE f.nom = 'Certificat de compétence Analyste Cloud'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Microsoft Azure – Administration (AZ-104)
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des systèmes'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Ingénierie des systèmes TIC'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Déploiement de la solution'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Fourniture de services'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des problèmes'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des niveaux de service'
+WHERE f.nom = 'Microsoft Azure – Administration (AZ-104)'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Certificat de spécialisation Intelligence artificielle
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Science des données et analyse'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement prévisionnel'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Innovation'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Veille technologique'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de l''information et de la connaissance'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Certificat de spécialisation Intelligence artificielle'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Formation Data Engineer
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Science des données et analyse'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de l''information et de la connaissance'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Ingénierie des systèmes TIC'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception de l''architecture'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Fourniture de services'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la qualité des TIC'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Formation Data Engineer'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Développeur Full-Stack - Java et Angular
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception des applications'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception et développement d''applications'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Intégration des composants'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Tests'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Déploiement de la solution'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Production de la documentation'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la qualité des TIC'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Développeur Full-Stack - Java et Angular'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / ITIL® 4 Foundation
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des niveaux de service'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Fourniture de services'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des problèmes'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Support utilisateur'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Support aux changements'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Amélioration des processus'
+WHERE f.nom = 'ITIL® 4 Foundation'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Mastère Spécialisé Manager des Systèmes d’Information
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gouvernance des systèmes d''information'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Systèmes d’information et alignement stratégique métier'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des projets et du portefeuille de projets'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des changements métier'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement du personnel'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie pour la qualité des TIC'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Mise en place d’un plan d’activité'
+WHERE f.nom = 'Mastère Spécialisé Manager des Systèmes d’Information'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Gestion de projet informatique
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des projets et du portefeuille de projets'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Planification des produits/services'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des changements métier'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Mise en place d’un plan d’activité'
+WHERE f.nom = 'Gestion de projet informatique'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / COBIT® 2019 Foundation, certification ISACA
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gouvernance des systèmes d''information'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Systèmes d’information et alignement stratégique métier'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie pour la qualité des TIC'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la qualité des TIC'
+WHERE f.nom = 'COBIT® 2019 Foundation, certification ISACA'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Délégué à la protection des données - DPO
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie de sécurité de l''information'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Production de la documentation'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de l''information et de la connaissance'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Prestation de services de formation'
+WHERE f.nom = 'Délégué à la protection des données - DPO'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / UX-PM, niveau 1 : adoption de l'UX, certification
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Expérience utilisateur'
+WHERE f.nom = 'UX-PM, niveau 1 : adoption de l''UX, certification'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'UX-PM, niveau 1 : adoption de l''UX, certification'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Conception des applications'
+WHERE f.nom = 'UX-PM, niveau 1 : adoption de l''UX, certification'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'UX-PM, niveau 1 : adoption de l''UX, certification'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Innovation'
+WHERE f.nom = 'UX-PM, niveau 1 : adoption de l''UX, certification'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Sobriété numérique et éco-conception
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion du développement durable'
+WHERE f.nom = 'Sobriété numérique et éco-conception'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Amélioration des processus'
+WHERE f.nom = 'Sobriété numérique et éco-conception'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement d''une stratégie pour la qualité des TIC'
+WHERE f.nom = 'Sobriété numérique et éco-conception'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Innovation'
+WHERE f.nom = 'Sobriété numérique et éco-conception'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la qualité des TIC'
+WHERE f.nom = 'Sobriété numérique et éco-conception'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Parcours certifiant Acheteur
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Achats'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des contrats'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement des ventes'
+WHERE f.nom = 'Parcours certifiant Acheteur'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des contrats'
+WHERE f.nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des niveaux de service'
+WHERE f.nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Production de la documentation'
+WHERE f.nom = 'Contract management : mettre en œuvre une stratégie de gestion du risque de ses contrats'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Concevoir et piloter son plan marketing digital
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Marketing numérique'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement des ventes'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la relation client'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Identification des besoins'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Innovation'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Mise en place d’un plan d’activité'
+WHERE f.nom = 'Concevoir et piloter son plan marketing digital'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Plans de continuité des activités critiques de l'entreprise
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Mise en place d’un plan d’activité'
+WHERE f.nom = 'Plans de continuité des activités critiques de l''entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des risques'
+WHERE f.nom = 'Plans de continuité des activités critiques de l''entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gouvernance des systèmes d''information'
+WHERE f.nom = 'Plans de continuité des activités critiques de l''entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de la sécurité de l''information'
+WHERE f.nom = 'Plans de continuité des activités critiques de l''entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion des niveaux de service'
+WHERE f.nom = 'Plans de continuité des activités critiques de l''entreprise'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+-- Liaison compétences / Formation de formateurs
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Prestation de services de formation'
+WHERE f.nom = 'Formation de formateurs'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Développement du personnel'
+WHERE f.nom = 'Formation de formateurs'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Production de la documentation'
+WHERE f.nom = 'Formation de formateurs'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Gestion de l''information et de la connaissance'
+WHERE f.nom = 'Formation de formateurs'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );
+
+INSERT INTO formation_competence (formation_id, competence_id)
+SELECT f.id, c.id
+FROM formation f
+JOIN competence_si c ON c.nom = 'Support aux changements'
+WHERE f.nom = 'Formation de formateurs'
+  AND NOT EXISTS (
+    SELECT 1 FROM formation_competence fc
+    WHERE fc.formation_id = f.id AND fc.competence_id = c.id
+  );

@@ -2,14 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { metierApi, activiteApi, metierCompetenceApi, competenceSIApi } from '../utils/metiers.service'
 import type { Metier, Activite, MetierCompetence, CompetenceSI } from '../types/referentiel'
+import FormationModal from '../components/Referentiel/FormationModal'
+import NiveauBadge from '../components/Referentiel/NiveauBadge'
 import { NIVEAUX_SI } from '../types/referentiel'
 
 type Tab = 'activites' | 'competences'
-
-function NiveauBadge({ niveau }: { niveau: number }) {
-    const n = NIVEAUX_SI.find(n => n.value === niveau) ?? NIVEAUX_SI[0]
-    return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${n?.color ?? ''}`}>{n?.label ?? ''}</span>
-}
 
 export default function MetierDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -43,6 +40,8 @@ export default function MetierDetailPage() {
     const [editComp, setEditComp] = useState<MetierCompetence | null>(null)
     const [editCompForm, setEditCompForm] = useState({ niveauRequis: '1', obligatoire: false })
 
+    const [selectedCompForFormations, setSelectedCompForFormations] = useState<CompetenceSI | null>(null)
+
     const notify = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(null), 3000) }
 
     // Metier edit form
@@ -52,7 +51,15 @@ export default function MetierDetailPage() {
 
     const loadMetier = () => metierApi.getById(metierId).then(setMetier)
     const loadActivites = () => activiteApi.list(metierId).then(setActivites)
-    const loadCompetences = () => metierCompetenceApi.list(metierId).then(setCompetences)
+    const loadCompetences = () => metierCompetenceApi.list(metierId).then(list => {
+        // Sort by level descending (Expert=4 to Notions=1)
+        const sorted = [...list].sort((a, b) => {
+            const valA = Number(a.niveauRequis) || 0
+            const valB = Number(b.niveauRequis) || 0
+            return valB - valA
+        })
+        setCompetences(sorted)
+    })
     const loadAllCompetences = () => competenceSIApi.list({ size: 500 }).then(r => setAllCompetences(r.content))
 
     const loadAll = (silent = false) => {
@@ -450,7 +457,12 @@ export default function MetierDetailPage() {
                             >
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-semibold text-slate-900">{c.competenceNom}</span>
+                                        <button 
+                                            onClick={() => setSelectedCompForFormations({ id: c.competenceId, nom: c.competenceNom, description: c.competenceDescription })}
+                                            className="font-semibold text-slate-900 hover:text-blue-600 transition-colors text-left"
+                                        >
+                                            {c.competenceNom}
+                                        </button>
                                         <NiveauBadge niveau={c.niveauRequis} />
                                         {c.obligatoire && <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">Obligatoire</span>}
                                     </div>
@@ -465,6 +477,13 @@ export default function MetierDetailPage() {
                         ))
                     )}
                 </div>
+            )}
+
+            {selectedCompForFormations && (
+                <FormationModal 
+                    competence={selectedCompForFormations} 
+                    onClose={() => setSelectedCompForFormations(null)} 
+                />
             )}
         </div>
     )
