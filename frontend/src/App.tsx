@@ -8,6 +8,8 @@ import FamillesListPage from './pages/FamillesListPage'
 import FamilleDetailPage from './pages/FamilleDetailPage'
 import MetierDetailPage from './pages/MetierDetailPage'
 import CompetencesSIPage from './pages/CompetencesSIPage'
+import FormationsPage from './pages/FormationsPage'
+import MetiersComparisonPage from './pages/MetiersComparisonPage'
 
 const App = () => {
   return (
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="/referentiel/famille/:id" element={<FamilleDetailPage />} />
           <Route path="/referentiel/metier/:id" element={<MetierDetailPage />} />
           <Route path="/referentiel/competences" element={<CompetencesSIPage />} />
+          <Route path="/referentiel/formations" element={<FormationsPage />} />
+          <Route path="/referentiel/comparateur" element={<MetiersComparisonPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

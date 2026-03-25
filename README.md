@@ -6,7 +6,19 @@ Ce projet est une application de gestion des ressources humaines concentrée sur
 
 Le projet est un monorepo contenant :
 - **`/backend`** : API Spring Boot 3, JPA, H2, Swagger.
-- **`/frontend`** : Interface React moderne avec Vite, TypeScript et CSS de pointe.
+- **`/frontend`** : Interface React moderne avec Vite, TypeScript et CSS de pointe (Design Premium).
+
+---
+
+## 🌟 Nouvelles Fonctionnalités
+
+### 1. Gestion des Formations
+- **Plateforme de Formations** : Une nouvelle section `/referentiel/formations` permet de gérer un catalogue de formations.
+- **Lien Compétences ↔ Formations** : Chaque compétence SI peut être liée à une ou plusieurs formations.
+- **Accès Rapide** : Popups interactifs pour consulter les formations liées à une compétence.
+
+### 2. Tri Hiérarchique Intelligent
+- **Classement par Niveau** : Les compétences d'un métier sont triées par importance : **Expert (5/4) > Avancé (3) > Intermédiaire (2) > Notions (1)**.
 
 ---
 
@@ -68,13 +80,18 @@ classDiagram
     class MetierCompetenceSI {
         Integer niveauRequis
         Boolean obligatoire
-        Integer ordre
+    }
+    class Formation {
+        Long id
+        String nom
+        String url
+        String organisme
     }
 
     Famille "1" -- "*" Metier : contient
-    Metier "1" -- "*" Activite : possède
     Metier "1" -- "*" MetierCompetenceSI : requiert
     MetierCompetenceSI "*" -- "1" CompetenceSI : référence
+    Formation "*" -- "*" CompetenceSI : développe
 ```
 
 ---
