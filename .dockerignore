@@ -1,0 +1,10 @@
+node_modules
+dist
+target
+.git
+.idea
+.vscode
+*.log
+*.jar
+*.war
+.DS_Store

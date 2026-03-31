@@ -2,6 +2,8 @@ package isis.projet.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
 import org.modelmapper.ModelMapper;
@@ -26,7 +28,8 @@ public class BackendApplication {
 	// Permet d'accéder à la base de données H2 depuis un client externe (comme DBeaver ou IntelliJ IDEA)
 	// URL de connexion : jdbc:h2:tcp://localhost:9092/mem:testdb
 	@Bean(initMethod = "start", destroyMethod = "stop")
-	public Server h2Server() throws SQLException {
-		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
+	@ConditionalOnProperty(name = "h2.tcp.server.enabled", havingValue = "true")
+	public Server h2Server(@Value("${h2.tcp.server.port:9100}") String port) throws SQLException {
+		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", port);
 	}
 }

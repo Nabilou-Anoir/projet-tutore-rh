@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { competenceSIApi } from '../utils/metiers.service'
 import type { CompetenceSI, Metier } from '../types/referentiel'
 import FormationModal from '../components/Referentiel/FormationModal'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function CompetencesSIPage() {
     const [competences, setCompetences] = useState<CompetenceSI[]>([])
@@ -25,6 +26,8 @@ export default function CompetencesSIPage() {
     const [loadingMetiers, setLoadingMetiers] = useState<Record<number, boolean>>({})
 
     const [selectedCompForFormations, setSelectedCompForFormations] = useState<CompetenceSI | null>(null)
+    const { role } = useAuth()
+    const canEdit = role === 'rh'
 
     const notify = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(null), 3000) }
 
@@ -42,11 +45,26 @@ export default function CompetencesSIPage() {
         setSearch(q); setPage(0); load(0, q)
     }
 
-    const openCreate = () => { setForm({ nom: '', description: '' }); setEditComp(null); setShowForm(true) }
-    const openEdit = (c: CompetenceSI) => { setForm({ nom: c.nom, description: c.description ?? '' }); setEditComp(c); setShowForm(true) }
+    const guardRh = () => {
+        if (!canEdit) {
+            setError('Fonction réservée au profil RH. Merci de vous connecter.')
+            return false
+        }
+        return true
+    }
+
+    const openCreate = () => {
+        if (!guardRh()) return
+        setForm({ nom: '', description: '' }); setEditComp(null); setShowForm(true)
+    }
+    const openEdit = (c: CompetenceSI) => {
+        if (!guardRh()) return
+        setForm({ nom: c.nom, description: c.description ?? '' }); setEditComp(c); setShowForm(true)
+    }
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             if (editComp) {
@@ -63,6 +81,7 @@ export default function CompetencesSIPage() {
     }
 
     const handleDelete = async (c: CompetenceSI) => {
+        if (!guardRh()) return
         if (!confirm(`Supprimer la compétence "${c.nom}" ?`)) return
         try { await competenceSIApi.delete(c.id); load(0, search, true); notify('Compétence supprimée') }
         catch (err: any) { setError(err.message || 'Erreur lors de la suppression') }
@@ -97,6 +116,11 @@ export default function CompetencesSIPage() {
                     {error}<button onClick={() => setError(null)}>✕</button>
                 </div>
             )}
+            {!canEdit && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    Mode lecture seule activé. Connectez-vous en RH pour créer ou modifier des compétences.
+                </div>
+            )}
 
             {/* Toolbar */}
             <div className="flex gap-3">
@@ -105,10 +129,15 @@ export default function CompetencesSIPage() {
                     placeholder="Rechercher une compétence…"
                     className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
-                <button onClick={openCreate}
-                    className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
-                    + Nouvelle compétence
-                </button>
+                {canEdit && (
+                    <button
+                        onClick={openCreate}
+                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
+                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                    >
+                        + Nouvelle compétence
+                    </button>
+                )}
                 <Link to="/referentiel/formations"
                     className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
                     🎓 Gérer les formations
@@ -118,7 +147,7 @@ export default function CompetencesSIPage() {
             <p className="text-sm text-slate-500"><span className="font-bold text-slate-900">{total}</span> compétence{total !== 1 ? 's' : ''}</p>
 
             {/* Form modal */}
-            {showForm && (
+            {showForm && canEdit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowForm(false)}>
                     <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="mb-4 text-lg font-bold text-slate-900">{editComp ? 'Modifier la compétence' : 'Nouvelle compétence'}</h3>
@@ -167,10 +196,12 @@ export default function CompetencesSIPage() {
                                     </h3>
                                     {c.description && <p className="text-sm text-slate-500 mt-0.5">{c.description}</p>}
                                 </div>
-                                <div className="flex gap-1 ml-4" onClick={e => e.stopPropagation()}>
-                                    <button onClick={() => openEdit(c)} className="rounded-lg p-2 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
-                                    <button onClick={() => handleDelete(c)} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
-                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-1 ml-4" onClick={e => e.stopPropagation()}>
+                                        <button onClick={() => openEdit(c)} className="rounded-lg p-2 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
+                                        <button onClick={() => handleDelete(c)} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { familleApi } from '../utils/metiers.service'
 import type { Famille } from '../types/referentiel'
+import { useAuth } from '../contexts/AuthContext'
 
 const FAMILLE_ICONS = ['🏛', '📋', '💻', '🖥', '🎧', '🛡', '👥', '📊', '🤝']
 
@@ -15,6 +16,8 @@ export default function FamillesListPage() {
     const [form, setForm] = useState({ nom: '', description: '', ordre: '', icone: '🏛' })
     const [saving, setSaving] = useState(false)
     const navigate = useNavigate()
+    const { role } = useAuth()
+    const canEdit = role === 'rh'
 
     const notify = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(null), 3000) }
 
@@ -28,8 +31,17 @@ export default function FamillesListPage() {
 
     useEffect(() => { load() }, [])
 
+    const guardRh = () => {
+        if (!canEdit) {
+            setError('Fonction réservée au profil RH. Merci de vous connecter.')
+            return false
+        }
+        return true
+    }
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         if (!form.nom.trim()) return
         setSaving(true)
         try {
@@ -51,6 +63,7 @@ export default function FamillesListPage() {
     }
 
     const openCreate = () => {
+        if (!guardRh()) return
         setEditFamille(null)
         setForm({ nom: '', description: '', ordre: '', icone: '🏛' })
         setShowForm(true)
@@ -58,12 +71,14 @@ export default function FamillesListPage() {
 
     const openEdit = (e: React.MouseEvent, f: Famille) => {
         e.stopPropagation()
+        if (!guardRh()) return
         setEditFamille(f)
         setForm({ nom: f.nom, description: f.description || '', ordre: String(f.ordre), icone: f.icone || '🏛' })
         setShowForm(true)
     }
 
     const handleDelete = async (id: number, nom: string) => {
+        if (!guardRh()) return
         if (!confirm(`Supprimer la famille "${nom}" et tous ses métiers ?`)) return
         try {
             await familleApi.delete(id)
@@ -92,14 +107,23 @@ export default function FamillesListPage() {
                 <p className="text-sm font-medium text-slate-500">
                     <span className="text-2xl font-bold text-slate-900">{familles.length}</span> famille{familles.length !== 1 ? 's' : ''}
                 </p>
-                <button
-                    onClick={openCreate}
-                    className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-                    style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
-                >
-                    <span className="text-lg">+</span> Nouvelle famille
-                </button>
+                {canEdit && (
+                    <button
+                        onClick={openCreate}
+                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                        title="Créer une nouvelle famille"
+                    >
+                        <span className="text-lg">+</span> Nouvelle famille
+                    </button>
+                )}
             </div>
+
+            {!canEdit && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    Mode lecture seule activé. Connectez-vous en RH pour modifier le référentiel.
+                </div>
+            )}
 
             {/* Notifications */}
             {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div>}

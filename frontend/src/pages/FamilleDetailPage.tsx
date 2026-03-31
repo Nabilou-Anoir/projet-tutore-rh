@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { familleApi, metierApi } from '../utils/metiers.service'
 import type { Famille, Metier } from '../types/referentiel'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function FamilleDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -17,6 +18,8 @@ export default function FamilleDetailPage() {
     const [showFamilleForm, setShowFamilleForm] = useState(false)
     const [familleForm, setFamilleForm] = useState({ nom: '', description: '', ordre: '', icone: '' })
     const [saving, setSaving] = useState(false)
+    const { role } = useAuth()
+    const canEdit = role === 'rh'
 
     const familleId = Number(id)
 
@@ -33,8 +36,17 @@ export default function FamilleDetailPage() {
 
     useEffect(() => { if (familleId) load() }, [familleId])
 
+    const guardRh = () => {
+        if (!canEdit) {
+            setError('Fonctions d’édition réservées au profil RH. Merci de vous connecter.')
+            return false
+        }
+        return true
+    }
+
     const handleSaveMetier = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             if (editMetier) {
@@ -55,6 +67,7 @@ export default function FamilleDetailPage() {
 
     const openEditMetier = (e: React.MouseEvent, m: Metier) => {
         e.stopPropagation()
+        if (!guardRh()) return
         setEditMetier(m)
         setForm({ titre: m.titre, description: m.description || '', missionCourte: m.missionCourte || '' })
         setShowForm(true)
@@ -62,6 +75,7 @@ export default function FamilleDetailPage() {
 
     const handleUpdateFamille = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             await familleApi.update(familleId, { nom: familleForm.nom, description: familleForm.description, ordre: parseInt(familleForm.ordre) || 0, icone: familleForm.icone })
@@ -75,12 +89,13 @@ export default function FamilleDetailPage() {
     }
 
     const openEditFamille = () => {
-        if (!famille) return
+        if (!famille || !guardRh()) return
         setFamilleForm({ nom: famille.nom, description: famille.description || '', ordre: String(famille.ordre), icone: famille.icone || '' })
         setShowFamilleForm(true)
     }
 
     const handleDelete = async (m: Metier) => {
+        if (!guardRh()) return
         if (!confirm(`Supprimer le métier "${m.titre}" ?`)) return
         try { await metierApi.delete(m.id); load() }
         catch { setError('Erreur lors de la suppression') }
@@ -100,7 +115,9 @@ export default function FamilleDetailPage() {
                     <>
                         <div className="flex items-center justify-between mt-2">
                             <h1 className="text-3xl font-bold">{famille?.nom}</h1>
-                            <button onClick={openEditFamille} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier la famille</button>
+                            {canEdit && (
+                                <button onClick={openEditFamille} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier la famille</button>
+                            )}
                         </div>
                         {famille?.description && <p className="mt-3 text-lg text-blue-100/90 leading-relaxed max-w-4xl">{famille.description}</p>}
                     </>
@@ -113,6 +130,12 @@ export default function FamilleDetailPage() {
                 </div>
             )}
 
+            {!canEdit && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    Mode lecture seule : connectez-vous en RH pour créer ou modifier des métiers/familles.
+                </div>
+            )}
+
             {/* Toolbar */}
             <div className="flex gap-3">
                 <input
@@ -120,17 +143,22 @@ export default function FamilleDetailPage() {
                     placeholder="Rechercher un métier…"
                     className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                 />
-                <button
-                    onClick={() => { setShowForm(true); setEditMetier(null); setForm({ titre: '', description: '', missionCourte: '' }) }}
-                    className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
-                    style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
-                >
-                    <span>+</span> Nouveau métier
-                </button>
+                {canEdit && (
+                    <button
+                        onClick={() => {
+                            if (!guardRh()) return
+                            setShowForm(true); setEditMetier(null); setForm({ titre: '', description: '', missionCourte: '' })
+                        }}
+                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
+                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                    >
+                        <span>+</span> Nouveau métier
+                    </button>
+                )}
             </div>
 
             {/* Edit Famille Modal */}
-            {showFamilleForm && (
+            {showFamilleForm && canEdit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowFamilleForm(false)}>
                     <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="mb-4 text-lg font-bold text-slate-900">Modifier la famille</h3>
@@ -162,7 +190,7 @@ export default function FamilleDetailPage() {
             )}
 
             {/* Add/Edit Metier modal */}
-            {showForm && (
+            {showForm && canEdit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { setShowForm(false); setEditMetier(null); }}>
                     <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="mb-4 text-lg font-bold text-slate-900">{editMetier ? 'Modifier le métier' : `Nouveau métier dans ${famille?.nom}`}</h3>
@@ -218,16 +246,18 @@ export default function FamilleDetailPage() {
                             </div>
                             <div className="flex items-center gap-2 ml-4">
                                 <span className="text-sm text-blue-500 group-hover:underline">Détails →</span>
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={e => openEditMetier(e, m)}
-                                        className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors"
-                                    >✏️</button>
-                                    <button
-                                        onClick={e => { e.stopPropagation(); handleDelete(m) }}
-                                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-                                    >🗑️</button>
-                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={e => openEditMetier(e, m)}
+                                            className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors"
+                                        >✏️</button>
+                                        <button
+                                            onClick={e => { e.stopPropagation(); handleDelete(m) }}
+                                            className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                        >🗑️</button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formationApi, competenceSIApi } from '../utils/metiers.service'
 import type { Formation, CompetenceSI } from '../types/referentiel'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function FormationsPage() {
     const [formations, setFormations] = useState<Formation[]>([])
@@ -10,6 +11,8 @@ export default function FormationsPage() {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const { role } = useAuth()
+    const canEdit = role === 'rh'
 
     // Form modal state
     const [showForm, setShowForm] = useState(false)
@@ -37,13 +40,23 @@ export default function FormationsPage() {
 
     useEffect(() => { load() }, [])
 
+    const guardRh = () => {
+        if (!canEdit) {
+            setError('Fonction réservée au profil RH. Merci de vous connecter.')
+            return false
+        }
+        return true
+    }
+
     const openCreate = () => {
+        if (!guardRh()) return
         setForm({ nom: '', description: '', url: '', organisme: '', competenceIds: [] })
         setEditFormation(null)
         setShowForm(true)
     }
 
     const openEdit = (f: Formation) => {
+        if (!guardRh()) return
         setForm({
             nom: f.nom,
             description: f.description ?? '',
@@ -57,6 +70,7 @@ export default function FormationsPage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             if (editFormation) {
@@ -76,6 +90,7 @@ export default function FormationsPage() {
     }
 
     const handleDelete = async (f: Formation) => {
+        if (!guardRh()) return
         if (!confirm(`Supprimer la formation "${f.nom}" ?`)) return
         try {
             await formationApi.delete(f.id)
@@ -110,11 +125,23 @@ export default function FormationsPage() {
                 </div>
             )}
 
-            <div className="flex justify-end">
-                <button onClick={openCreate} className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
-                    + Nouvelle Formation
-                </button>
-            </div>
+            {!canEdit && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    Mode lecture seule activé. Connectez-vous en RH pour modifier le catalogue.
+                </div>
+            )}
+
+            {canEdit && (
+                <div className="flex justify-end">
+                    <button
+                        onClick={openCreate}
+                        className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95"
+                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                    >
+                        + Nouvelle Formation
+                    </button>
+                </div>
+            )}
 
             {loading ? (
                 <div className="flex justify-center py-20">
@@ -129,10 +156,12 @@ export default function FormationsPage() {
                                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">{f.nom}</h3>
                                     {f.organisme && <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mt-0.5">{f.organisme}</p>}
                                 </div>
-                                <div className="flex gap-1 ml-4">
-                                    <button onClick={() => openEdit(f)} className="rounded-xl p-2.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-all">✏️</button>
-                                    <button onClick={() => handleDelete(f)} className="rounded-xl p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">🗑️</button>
-                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-1 ml-4">
+                                        <button onClick={() => openEdit(f)} className="rounded-xl p-2.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-all">✏️</button>
+                                        <button onClick={() => handleDelete(f)} className="rounded-xl p-2.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">🗑️</button>
+                                    </div>
+                                )}
                             </div>
                             
                             {f.description && <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">{f.description}</p>}
@@ -166,14 +195,14 @@ export default function FormationsPage() {
                         <div className="md:col-span-2 rounded-3xl border-2 border-dashed border-slate-100 bg-slate-50/50 py-20 text-center">
                             <div className="text-4xl mb-4">📂</div>
                             <p className="text-slate-500 font-medium">Aucune formation enregistrée pour le moment.</p>
-                            <button onClick={openCreate} className="mt-4 text-blue-600 font-bold hover:underline">Ajouter votre première formation</button>
+                            {canEdit && <button onClick={openCreate} className="mt-4 text-blue-600 font-bold hover:underline">Ajouter votre première formation</button>}
                         </div>
                     )}
                 </div>
             )}
 
             {/* Modal Form */}
-            {showForm && (
+            {showForm && canEdit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
                     <div className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl animate-in fade-in zoom-in duration-200 my-auto" onClick={e => e.stopPropagation()}>
                         <div className="p-8">

@@ -1,12 +1,28 @@
 import type { Famille, Metier, Activite, CompetenceSI, MetierCompetence, Formation } from '../types/referentiel'
+import { getStoredAuthToken, getStoredRole } from '../contexts/AuthContext'
 
 const BASE = '/api'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
+    const method = (init?.method || 'GET').toUpperCase()
+    const headers = new Headers(init?.headers || {})
+    if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+
+    const token = getStoredAuthToken()
+    if (token) {
+        headers.set('Authorization', `Bearer ${token}`)
+    } else if (method !== 'GET') {
+        const role = getStoredRole()
+        if (role !== 'rh') {
+            throw new Error('Action réservée au profil RH. Merci de vous connecter.')
+        }
+    }
+
     const res = await fetch(url, {
-        headers: { 'Content-Type': 'application/json', ...init?.headers },
+        headers,
         ...init,
+        method,
     })
     if (!res.ok) {
         try {

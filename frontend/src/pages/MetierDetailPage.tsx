@@ -5,6 +5,7 @@ import type { Metier, Activite, MetierCompetence, CompetenceSI } from '../types/
 import FormationModal from '../components/Referentiel/FormationModal'
 import NiveauBadge from '../components/Referentiel/NiveauBadge'
 import { NIVEAUX_SI } from '../types/referentiel'
+import { useAuth } from '../contexts/AuthContext'
 
 type Tab = 'activites' | 'competences'
 
@@ -41,6 +42,8 @@ export default function MetierDetailPage() {
     const [editCompForm, setEditCompForm] = useState({ niveauRequis: '1', obligatoire: false })
 
     const [selectedCompForFormations, setSelectedCompForFormations] = useState<CompetenceSI | null>(null)
+    const { role } = useAuth()
+    const canEdit = role === 'rh'
 
     const notify = (msg: string) => { setSuccess(msg); setTimeout(() => setSuccess(null), 3000) }
 
@@ -74,7 +77,16 @@ export default function MetierDetailPage() {
     }, [metierId])
 
     // ─── Métier ──────────────────────────────────────────────────────────────────
+    const guardRh = () => {
+        if (!canEdit) {
+            setError('Fonction réservée au profil RH. Merci de vous connecter.')
+            return false
+        }
+        return true
+    }
+
     const openEditMetier = () => {
+        if (!guardRh()) return
         if (!metier) return
         setMetierForm({
             titre: metier.titre,
@@ -87,6 +99,7 @@ export default function MetierDetailPage() {
 
     const handleUpdateMetier = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             await metierApi.update(metierId, metierForm)
@@ -99,12 +112,14 @@ export default function MetierDetailPage() {
 
     // ─── Activités ───────────────────────────────────────────────────────────────
     const openEditActivite = (a: Activite) => {
+        if (!guardRh()) return
         setEditActivite(a)
         setActiviteForm({ libelle: a.libelle, description: a.description ?? '', ordre: String(a.ordre ?? '') })
     }
 
     const handleSaveActivite = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             if (editActivite) {
@@ -123,7 +138,7 @@ export default function MetierDetailPage() {
     }
 
     const handleDeleteActivite = async (a: Activite) => {
-        if (!confirm(`Supprimer l'activité "${a.libelle}" ?`)) return
+        if (!guardRh() || !confirm(`Supprimer l'activité "${a.libelle}" ?`)) return
         try { await activiteApi.delete(metierId, a.id); loadActivites(); notify('Activité supprimée') }
         catch (err: any) { setError(err.message || 'Erreur lors de la suppression') }
     }
@@ -131,6 +146,7 @@ export default function MetierDetailPage() {
     // ─── Compétences ─────────────────────────────────────────────────────────────
     const handleAddCompetence = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         setSaving(true)
         try {
             const payload: any = {
@@ -168,6 +184,7 @@ export default function MetierDetailPage() {
 
     const handleUpdateCompetence = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!guardRh()) return
         if (!editComp) return
         try {
             await metierCompetenceApi.update(metierId, editComp.competenceId, { niveauRequis: parseInt(editCompForm.niveauRequis), obligatoire: editCompForm.obligatoire })
@@ -179,7 +196,7 @@ export default function MetierDetailPage() {
     }
 
     const handleRemoveCompetence = async (c: MetierCompetence) => {
-        if (!confirm(`Retirer "${c.competenceNom}" du profil de ce métier ?`)) return
+        if (!guardRh() || !confirm(`Retirer "${c.competenceNom}" du profil de ce métier ?`)) return
         try { await metierCompetenceApi.remove(metierId, c.competenceId); loadCompetences(); notify('Compétence retirée') }
         catch (err: any) { setError(err.message || 'Erreur lors de la suppression') }
     }
@@ -203,7 +220,7 @@ export default function MetierDetailPage() {
                                 <h1 className="text-2xl font-bold">{metier?.titre}</h1>
                                 {metier && !metier.actif && <span className="rounded-full bg-white/20 px-3 py-0.5 text-xs">Inactif</span>}
                             </div>
-                            <button onClick={openEditMetier} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier</button>
+                            {canEdit && <button onClick={openEditMetier} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier</button>}
                         </div>
                         {metier?.description ? (
                             <p className="mt-2 text-blue-100 text-sm leading-relaxed max-w-4xl">{metier.description}</p>
@@ -215,7 +232,7 @@ export default function MetierDetailPage() {
             </header>
 
             {/* Metier edit modal */}
-            {showMetierForm && (
+            {showMetierForm && canEdit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowMetierForm(false)}>
                     <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                         <h3 className="mb-4 text-lg font-bold text-slate-900">Modifier le métier</h3>
@@ -258,6 +275,11 @@ export default function MetierDetailPage() {
                     {error}<button onClick={() => setError(null)}>✕</button>
                 </div>
             )}
+            {!canEdit && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    Profil public : lecture seule. Connectez-vous en RH pour modifier le métier, ses activités ou ses compétences.
+                </div>
+            )}
 
             {/* Tabs */}
             <div className="flex border-b border-slate-200">
@@ -275,14 +297,22 @@ export default function MetierDetailPage() {
             {/* ── ACTIVITÉS ── */}
             {tab === 'activites' && (
                 <div className="flex flex-col gap-4">
-                    <div className="flex justify-end">
-                        <button onClick={() => { setShowActiviteForm(true); setEditActivite(null); setActiviteForm({ libelle: '', description: '', ordre: '' }) }}
-                            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
-                            + Ajouter une activité
-                        </button>
-                    </div>
+                    {canEdit && (
+                        <div className="flex justify-end">
+                            <button
+                                onClick={() => {
+                                    if (!guardRh()) return
+                                    setShowActiviteForm(true); setEditActivite(null); setActiviteForm({ libelle: '', description: '', ordre: '' })
+                                }}
+                                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
+                                style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                            >
+                                + Ajouter une activité
+                            </button>
+                        </div>
+                    )}
 
-                    {(showActiviteForm || editActivite) && (
+                    {canEdit && (showActiviteForm || editActivite) && (
                         <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
                             <h4 className="mb-3 font-semibold text-slate-800">{editActivite ? 'Modifier l\'activité' : 'Nouvelle activité'}</h4>
                             <form onSubmit={handleSaveActivite} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -319,10 +349,12 @@ export default function MetierDetailPage() {
                                     <p className="font-semibold text-slate-900">{a.libelle}</p>
                                     {a.description && <p className="text-sm text-slate-500 mt-0.5">{a.description}</p>}
                                 </div>
-                                <div className="flex gap-1">
-                                    <button onClick={() => openEditActivite(a)} className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
-                                    <button onClick={() => handleDeleteActivite(a)} className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
-                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-1">
+                                        <button onClick={() => openEditActivite(a)} className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
+                                        <button onClick={() => handleDeleteActivite(a)} className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}
@@ -339,13 +371,21 @@ export default function MetierDetailPage() {
                         >
                             📘 Catalogue Compétences
                         </Link>
-                        <button onClick={() => setShowCompForm(true)}
-                            className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
-                            + Ajouter une compétence
-                        </button>
+                        {canEdit && (
+                            <button
+                                onClick={() => {
+                                    if (!guardRh()) return
+                                    setShowCompForm(true)
+                                }}
+                                className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
+                                style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                            >
+                                + Ajouter une compétence
+                            </button>
+                        )}
                     </div>
 
-                    {showCompForm && (
+                    {showCompForm && canEdit && (
                         <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
                             <h4 className="mb-3 font-semibold text-slate-800">Ajouter une compétence</h4>
 
@@ -419,7 +459,7 @@ export default function MetierDetailPage() {
                     )}
 
                     {/* Edit niveau modal */}
-                    {editComp && (
+                    {editComp && canEdit && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setEditComp(null)}>
                             <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
                                 <h4 className="mb-4 font-bold text-slate-900">Modifier : {editComp.competenceNom}</h4>
@@ -468,11 +508,13 @@ export default function MetierDetailPage() {
                                     </div>
                                     {c.competenceDescription && <p className="text-sm text-slate-500 mt-0.5">{c.competenceDescription}</p>}
                                 </div>
-                                <div className="flex gap-1">
-                                    <button onClick={() => { setEditComp(c); setEditCompForm({ niveauRequis: String(c.niveauRequis), obligatoire: c.obligatoire }) }}
-                                        className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
-                                    <button onClick={() => handleRemoveCompetence(c)} className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
-                                </div>
+                                {canEdit && (
+                                    <div className="flex gap-1">
+                                        <button onClick={() => { setEditComp(c); setEditCompForm({ niveauRequis: String(c.niveauRequis), obligatoire: c.obligatoire }) }}
+                                            className="rounded-lg p-1.5 text-slate-400 hover:bg-sky-50 hover:text-sky-600 transition-colors">✏️</button>
+                                        <button onClick={() => handleRemoveCompetence(c)} className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors">🗑️</button>
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}
