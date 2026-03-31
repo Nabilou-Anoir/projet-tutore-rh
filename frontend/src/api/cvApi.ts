@@ -11,6 +11,6 @@ export const analyzeOffer = async (formData: FormData) => {
   return await response.json();
 };
 export const scoreCv = async (formData: FormData) => {
-  const response = await axios.post(${API_BASE}/score-cv, formData);
+  const response = await axios.post(`${API_BASE}/score-cv`, formData);
   return response.data;
 };

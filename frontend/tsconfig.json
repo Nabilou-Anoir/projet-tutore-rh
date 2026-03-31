@@ -19,6 +19,6 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["src", "src/components/CvMatcher/CvMatcher.tsx"],
+  "include": ["src", "src/components/CvMatcher/CvMatcherTest.tsx"],
   "references": [{ "path": "tsconfig.node.json" }]
 }

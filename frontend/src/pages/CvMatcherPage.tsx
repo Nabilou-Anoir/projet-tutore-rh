@@ -1,4 +1,4 @@
-import CvMatcher from '../components/CvMatcher/CvMatcher'
+import CvMatcher from '../components/CvMatcher/CvMatcherTest'
 
 const CvMatcherPage = () => {
     return (
