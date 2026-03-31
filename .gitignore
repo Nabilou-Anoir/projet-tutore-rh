@@ -49,6 +49,9 @@ frontend/tests/unit/coverage
 frontend/yarn-error.log
 frontend/yarn.lock
 
+# Firebase service account credentials (keep local only)
+backend/firebase-service-account.json
+
 security/target/
 selenium-debug.log
 
