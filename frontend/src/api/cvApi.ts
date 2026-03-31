@@ -1,15 +1,20 @@
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "/api";
 
 export const analyzeOffer = async (formData: FormData) => {
-  const response = await fetch("http://localhost:8000/analyze-offer", {
+  const response = await fetch(`${API_BASE}/analyze-offer`, {
     method: "POST",
     body: formData,
   });
 
-  return await response.json();
+  if (!response.ok) {
+    throw new Error(`analyzeOffer failed with status ${response.status}`);
+  }
+
+  return response.json();
 };
+
 export const scoreCv = async (formData: FormData) => {
   const response = await axios.post(`${API_BASE}/score-cv`, formData);
   return response.data;

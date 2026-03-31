@@ -1,0 +1,24 @@
+stages:
+  - build
+  - package
+
+build_frontend:
+  stage: build
+  image: node:20
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/target/dist/
+
+package_frontend:
+  stage: package
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -f Dockerfile.frontend -t $CI_REGISTRY_IMAGE/frontend:latest .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE/frontend:latest
