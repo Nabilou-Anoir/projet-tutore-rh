@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencryptcluster
+spec:
+  rules:
+    - host: ptut.projetasinhpa.chl.connected-health.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - ptut.projetasinhpa.chl.connected-health.fr
+      secretName: frontend-cert
