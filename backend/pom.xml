@@ -78,7 +78,7 @@
 			<artifactId>firebase-admin</artifactId>
 			<version>9.2.0</version>
 		</dependency>
-		<!-- modelMapper pour les DTO -->
+		<!-- modelMapper pour les DTO bien -->
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
