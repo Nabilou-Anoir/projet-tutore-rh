@@ -56,3 +56,4 @@ security/target/
 selenium-debug.log
 
 !.mvn/wrapper/maven-wrapper.jar
+backend/firebase-service-account.json
