@@ -6,7 +6,6 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencryptcluster
 spec:
-  ingressClassName: traefik
   rules:
     - host: projetasinhpa.chl.connected-health.fr
       http:
