@@ -11,7 +11,7 @@ COPY backend/pom.xml backend/pom.xml
 # Copie du code source backend
 COPY backend/src backend/src
 
-# Création d'un dossier vide pour éviter d'échouer sur le plugin maven-resources 
+# Création d'un dossier vide pour éviter d'échouer sur le plugin maven-resources dzdzdzd
 # qui s'attend par défaut à trouver le build frontend compilé.
 RUN mkdir -p frontend/target/dist
 
