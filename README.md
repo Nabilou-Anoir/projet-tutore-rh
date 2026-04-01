@@ -45,6 +45,10 @@ npm run dev
 ```
 *L'interface est disponible sur [http://localhost:5173](http://localhost:5173).*
 
+> ℹ️ **Configuration Firebase**  
+> Le front-end lit désormais ses identifiants Firebase directement depuis `frontend/.env` (version suivie dans Git).  
+> Vous pouvez personnaliser ces valeurs si vous utilisez votre propre projet Firebase, sinon la configuration fournie correspond au projet `projet-rh-302a0` et évite les erreurs `auth/invalid-api-key` lors des builds Docker/CI.
+
 ---
 
 ## 📊 Modèle de Données (Référentiel)
