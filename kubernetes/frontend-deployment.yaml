@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: registry.gitlab.com/nabilou-anoir/projet-tutore-rh/frontend:latest
+          image: registry.gitlab.com/nabilou-anoir/projet-tutore-rh/frontend:20260401-amd64
           ports:
             - containerPort: 80
           env:

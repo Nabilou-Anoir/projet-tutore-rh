@@ -7,6 +7,10 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "8989:8989"
+    volumes:
+      - ./backend/firebase-service-account.json:/app/firebase-service-account.json:ro
+    environment:
+      - FIREBASE_CREDENTIALS_FILE=/app/firebase-service-account.json
     networks:
       - app-network
 
