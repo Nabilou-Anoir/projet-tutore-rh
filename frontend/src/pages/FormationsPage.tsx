@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { formationApi, competenceSIApi } from '../utils/metiers.service'
 import type { Formation, CompetenceSI } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
+import LogoFooter from '../components/LogoFooter'
 
 export default function FormationsPage() {
     const [formations, setFormations] = useState<Formation[]>([])
@@ -263,6 +264,7 @@ export default function FormationsPage() {
                     </div>
                 </div>
             )}
+            <LogoFooter />
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import type { Famille, Metier, Activite, CompetenceSI, MetierCompetence, Formation } from '../types/referentiel'
+import type { Famille, Metier, Activite, CompetenceSI, MetierCompetence, Formation, FamilleOverview } from '../types/referentiel'
 import { getStoredAuthToken, getStoredRole } from '../contexts/AuthContext'
 
 const BASE = '/api'
@@ -131,4 +131,9 @@ export const formationApi = {
     update: (id: number, data: Partial<Formation>) =>
         request<Formation>(`${BASE}/formations/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: number) => request<void>(`${BASE}/formations/${id}`, { method: 'DELETE' }),
+}
+
+// ─── Vue d'ensemble Référentiel ─────────────────────────────────────────────
+export const referentielOverviewApi = {
+    list: () => request<FamilleOverview[]>(`${BASE}/referentiel/overview`),
 }

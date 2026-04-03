@@ -16,6 +16,10 @@ public interface MetierRepository extends JpaRepository<Metier, Long> {
 
         List<Metier> findByFamilleId(Long familleId);
 
+        long countByFamilleId(Long familleId);
+
+        long countByFamilleIdAndActifTrue(Long familleId);
+
         @Query("SELECT m FROM Metier m JOIN m.metierCompetences mc WHERE mc.competence.id = :competenceId")
         List<Metier> findByCompetenceId(@Param("competenceId") Long competenceId);
 

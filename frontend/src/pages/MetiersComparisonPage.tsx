@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import NiveauBadge from '../components/Referentiel/NiveauBadge'
-import type { Activite, Metier, MetierCompetence } from '../types/referentiel'
-import { activiteApi, metierApi, metierCompetenceApi } from '../utils/metiers.service'
+import type { Activite, Formation, Metier, MetierCompetence } from '../types/referentiel'
+import { NIVEAUX_SI } from '../types/referentiel'
+import { activiteApi, formationApi, metierApi, metierCompetenceApi } from '../utils/metiers.service'
+import LogoFooter from '../components/LogoFooter'
 
 type LoadedMetier = {
   metier: Metier | null
@@ -20,93 +21,67 @@ const createEmptyState = (): LoadedMetier => ({
   error: null,
 })
 
-const normalizeLabel = (value: string) =>
-  value
-    ? value
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .trim()
-        .toLowerCase()
-    : ''
+const normalizeLabel = (v: string) =>
+  v ? v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() : ''
 
-const toneMap = {
-  emerald: 'text-emerald-600',
-  sky: 'text-sky-600',
-  violet: 'text-violet-600',
-  amber: 'text-amber-600',
-} as const
+const niveauLabel = (n: number) => NIVEAUX_SI.find((x) => x.value === n)?.label ?? `Niv. ${n}`
+const niveauColor = (n: number) => NIVEAUX_SI.find((x) => x.value === n)?.color ?? 'bg-slate-100 text-slate-600'
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
 
 const SummaryCard = ({
   title,
   value,
-  tone,
   subtitle,
+  colorClass,
 }: {
   title: string
   value: number
-  tone: keyof typeof toneMap
   subtitle?: string
+  colorClass: string
 }) => (
   <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
-    {subtitle && <p className="text-xs text-slate-500">{subtitle}</p>}
-    <p className={`mt-2 text-3xl font-semibold ${toneMap[tone]}`}>{value}</p>
+    {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
+    <p className={`mt-2 text-3xl font-semibold ${colorClass}`}>{value}</p>
   </div>
 )
 
-interface MetierPanelProps {
-  data: LoadedMetier
-  label: string
-  renderContent: (data: LoadedMetier) => ReactNode
-}
+const FormationPill = ({ f }: { f: Formation }) => (
+  <a
+    href={f.url || '#'}
+    target="_blank"
+    rel="noopener noreferrer"
+    title={f.organisme}
+    className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 transition"
+  >
+    🎓 {f.nom}
+    {f.organisme && <span className="text-indigo-400">· {f.organisme}</span>}
+  </a>
+)
 
-const MetierPanel = ({ data, label, renderContent }: MetierPanelProps) => {
-  const metierName = data.metier?.titre ?? `Sélection ${label}`
-
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-          <h3 className="text-xl font-semibold text-slate-900">{metierName}</h3>
-          {data.metier?.familleNom && <p className="text-sm text-slate-500">{data.metier.familleNom}</p>}
-        </div>
-        {data.loading && <span className="text-xs font-medium text-slate-500 animate-pulse">Chargement…</span>}
-      </div>
-
-      {data.error && (
-        <p className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{data.error}</p>
-      )}
-
-      {!data.metier && !data.loading && (
-        <p className="mt-4 text-sm text-slate-500">Choisissez un métier pour afficher ses activités et compétences.</p>
-      )}
-
-      {data.metier && <div className="mt-6">{renderContent(data)}</div>}
-    </div>
-  )
-}
+// ─── Comparison mode ───────────────────────────────────────────────────────────
 
 const ActivitiesList = ({ activites, counterpart }: { activites: Activite[]; counterpart: Set<string> }) => (
   <div>
     <h4 className="text-sm font-semibold text-slate-700">
       Activités <span className="text-slate-400">({activites.length})</span>
     </h4>
-    <div className="mt-3 space-y-3">
-      {activites.length === 0 && <p className="text-sm text-slate-500">Aucune activité n&apos;est renseignée pour ce métier.</p>}
-      {activites.map((activite) => {
-        const shared = counterpart.has(normalizeLabel(activite.libelle))
+    <div className="mt-3 space-y-2">
+      {activites.length === 0 && <p className="text-sm text-slate-500">Aucune activité renseignée.</p>}
+      {activites.map((a) => {
+        const shared = counterpart.has(normalizeLabel(a.libelle))
         return (
           <div
-            key={activite.id}
+            key={a.id}
             className={`rounded-2xl border px-4 py-3 ${shared ? 'border-emerald-200 bg-emerald-50/60' : 'border-slate-200 bg-slate-50/60'}`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-medium text-slate-900">{activite.libelle}</p>
-                {activite.description && <p className="text-sm text-slate-500">{activite.description}</p>}
+                <p className="font-medium text-slate-900">{a.libelle}</p>
+                {a.description && <p className="text-sm text-slate-500">{a.description}</p>}
               </div>
-              <span className={`text-xs font-semibold uppercase ${shared ? 'text-emerald-700' : 'text-slate-500'}`}>
+              <span className={`text-xs font-semibold uppercase ${shared ? 'text-emerald-700' : 'text-slate-400'}`}>
                 {shared ? 'Commune' : 'Spécifique'}
               </span>
             </div>
@@ -117,38 +92,30 @@ const ActivitiesList = ({ activites, counterpart }: { activites: Activite[]; cou
   </div>
 )
 
-const CompetencesList = ({
-  competences,
-  counterpart,
-}: {
-  competences: MetierCompetence[]
-  counterpart: Set<number>
-}) => (
+const CompetencesList = ({ competences, counterpart }: { competences: MetierCompetence[]; counterpart: Set<number> }) => (
   <div>
     <h4 className="text-sm font-semibold text-slate-700">
       Compétences SI <span className="text-slate-400">({competences.length})</span>
     </h4>
-    <div className="mt-3 space-y-3">
-      {competences.length === 0 && <p className="text-sm text-slate-500">Aucune compétence n&apos;est définie pour ce métier.</p>}
-      {competences.map((competence) => {
-        const shared = counterpart.has(competence.competenceId)
+    <div className="mt-3 space-y-2">
+      {competences.length === 0 && <p className="text-sm text-slate-500">Aucune compétence définie.</p>}
+      {competences.map((c) => {
+        const shared = counterpart.has(c.competenceId)
         return (
           <div
-            key={competence.competenceId}
+            key={c.competenceId}
             className={`rounded-2xl border px-4 py-3 ${shared ? 'border-violet-200 bg-violet-50/60' : 'border-slate-200 bg-white'}`}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-medium text-slate-900">{competence.competenceNom}</p>
-                {competence.competenceDescription && (
-                  <p className="text-sm text-slate-500">{competence.competenceDescription}</p>
-                )}
+                <p className="font-medium text-slate-900">{c.competenceNom}</p>
+                {c.competenceDescription && <p className="text-sm text-slate-500">{c.competenceDescription}</p>}
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <NiveauBadge niveau={competence.niveauRequis} />
-                  {competence.obligatoire && (
+                  <NiveauBadge niveau={c.niveauRequis} />
+                  {c.obligatoire && (
                     <span className="rounded-full bg-slate-900/90 px-2 py-0.5 text-xs font-medium text-white">Obligatoire</span>
                   )}
-                  <span className={`text-xs font-semibold uppercase tracking-wide ${shared ? 'text-violet-700' : 'text-slate-500'}`}>
+                  <span className={`text-xs font-semibold uppercase tracking-wide ${shared ? 'text-violet-700' : 'text-slate-400'}`}>
                     {shared ? 'Commune' : 'Spécifique'}
                   </span>
                 </div>
@@ -161,11 +128,207 @@ const CompetencesList = ({
   </div>
 )
 
+// ─── Evolution mode ────────────────────────────────────────────────────────────
+
+type EvolutionSection = {
+  missing: MetierCompetence[]       // dans B, pas dans A → à acquérir
+  toUpgrade: { compA: MetierCompetence; compB: MetierCompetence }[]  // dans A et B mais niveau B > niveau A
+  mastered: { compA: MetierCompetence; compB: MetierCompetence }[]   // dans A et B, niveau A >= niveau B
+}
+
+const EvolutionView = ({
+  dataA,
+  dataB,
+  formations,
+}: {
+  dataA: LoadedMetier
+  dataB: LoadedMetier
+  formations: Record<number, Formation[]>
+}) => {
+  const evolution = useMemo<EvolutionSection>(() => {
+    const mapA = new Map(dataA.competences.map((c) => [c.competenceId, c]))
+    const missing: MetierCompetence[] = []
+    const toUpgrade: { compA: MetierCompetence; compB: MetierCompetence }[] = []
+    const mastered: { compA: MetierCompetence; compB: MetierCompetence }[] = []
+
+    for (const compB of dataB.competences) {
+      const compA = mapA.get(compB.competenceId)
+      if (!compA) {
+        missing.push(compB)
+      } else if (compB.niveauRequis > compA.niveauRequis) {
+        toUpgrade.push({ compA, compB })
+      } else {
+        mastered.push({ compA, compB })
+      }
+    }
+    return { missing, toUpgrade, mastered }
+  }, [dataA.competences, dataB.competences])
+
+  const totalGap = evolution.missing.length + evolution.toUpgrade.length
+  const readinessPercent = dataB.competences.length
+    ? Math.round((evolution.mastered.length / dataB.competences.length) * 100)
+    : 0
+
+  return (
+    <div className="space-y-8">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <SummaryCard title="Déjà maîtrisées" value={evolution.mastered.length} subtitle="Compétences suffisantes" colorClass="text-emerald-600" />
+        <SummaryCard title="À renforcer" value={evolution.toUpgrade.length} subtitle="Niveau insuffisant" colorClass="text-amber-600" />
+        <SummaryCard title="À acquérir" value={evolution.missing.length} subtitle="Absentes du profil A" colorClass="text-rose-600" />
+        <SummaryCard title="Préparation" value={readinessPercent} subtitle={`${readinessPercent}% des compétences cibles`} colorClass="text-sky-600" />
+      </div>
+
+      {/* Progress bar */}
+      <div>
+        <div className="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Niveau de préparation global</span>
+          <span className="font-semibold">{readinessPercent}%</span>
+        </div>
+        <div className="h-3 w-full rounded-full bg-slate-200 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-sky-500 transition-all duration-700"
+            style={{ width: `${readinessPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Compétences à acquérir */}
+      {evolution.missing.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🚨</span>
+            <h3 className="text-base font-bold text-rose-700">
+              Compétences à acquérir <span className="text-rose-400">({evolution.missing.length})</span>
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {evolution.missing.map((c) => {
+              const fms = formations[c.competenceId] ?? []
+              return (
+                <div key={c.competenceId} className="rounded-2xl border border-rose-200 bg-rose-50/50 px-5 py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900">{c.competenceNom}</p>
+                      {c.competenceDescription && <p className="text-sm text-slate-500 mt-0.5">{c.competenceDescription}</p>}
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-slate-400">Niveau cible :</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${niveauColor(c.niveauRequis)}`}>
+                          {niveauLabel(c.niveauRequis)}
+                        </span>
+                        {c.obligatoire && (
+                          <span className="rounded-full bg-rose-700 px-2 py-0.5 text-xs font-medium text-white">Obligatoire</span>
+                        )}
+                      </div>
+                      {fms.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-xs font-semibold text-slate-600 mb-2">Formations disponibles :</p>
+                          <div className="flex flex-wrap gap-2">
+                            {fms.map((f) => <FormationPill key={f.id} f={f} />)}
+                          </div>
+                        </div>
+                      )}
+                      {fms.length === 0 && (
+                        <p className="mt-2 text-xs text-slate-400 italic">Aucune formation enregistrée pour cette compétence.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Compétences à renforcer */}
+      {evolution.toUpgrade.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">⬆️</span>
+            <h3 className="text-base font-bold text-amber-700">
+              Compétences à renforcer <span className="text-amber-400">({evolution.toUpgrade.length})</span>
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {evolution.toUpgrade.map(({ compA, compB }) => {
+              const fms = formations[compB.competenceId] ?? []
+              return (
+                <div key={compB.competenceId} className="rounded-2xl border border-amber-200 bg-amber-50/50 px-5 py-4">
+                  <p className="font-semibold text-slate-900">{compB.competenceNom}</p>
+                  {compB.competenceDescription && <p className="text-sm text-slate-500 mt-0.5">{compB.competenceDescription}</p>}
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-slate-400">Niveau actuel :</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${niveauColor(compA.niveauRequis)}`}>
+                        {niveauLabel(compA.niveauRequis)}
+                      </span>
+                    </div>
+                    <span className="text-slate-400">→</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-slate-400">Niveau cible :</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${niveauColor(compB.niveauRequis)}`}>
+                        {niveauLabel(compB.niveauRequis)}
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-amber-600">
+                      +{compB.niveauRequis - compA.niveauRequis} niveau{compB.niveauRequis - compA.niveauRequis > 1 ? 'x' : ''}
+                    </span>
+                  </div>
+                  {fms.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-slate-600 mb-2">Formations pour progresser :</p>
+                      <div className="flex flex-wrap gap-2">
+                        {fms.map((f) => <FormationPill key={f.id} f={f} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Compétences maîtrisées */}
+      {evolution.mastered.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">✅</span>
+            <h3 className="text-base font-bold text-emerald-700">
+              Compétences déjà maîtrisées <span className="text-emerald-400">({evolution.mastered.length})</span>
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {evolution.mastered.map(({ compA, compB }) => (
+              <div key={compB.competenceId} className="rounded-2xl border border-emerald-200 bg-emerald-50/40 px-5 py-3 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-slate-900">{compB.competenceNom}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${niveauColor(compA.niveauRequis)}`}>
+                    {niveauLabel(compA.niveauRequis)}
+                  </span>
+                  {compA.niveauRequis > compB.niveauRequis && (
+                    <span className="text-xs text-emerald-600 font-semibold">+{compA.niveauRequis - compB.niveauRequis} excédent</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main page ─────────────────────────────────────────────────────────────────
+
 const MetiersComparisonPage = () => {
   const [metiers, setMetiers] = useState<Metier[]>([])
   const [listLoading, setListLoading] = useState(true)
   const [listError, setListError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [mode, setMode] = useState<'comparaison' | 'evolution'>('comparaison')
 
   const [selectedA, setSelectedA] = useState<number | null>(null)
   const [selectedB, setSelectedB] = useState<number | null>(null)
@@ -173,190 +336,122 @@ const MetiersComparisonPage = () => {
   const [metierAData, setMetierAData] = useState<LoadedMetier>(createEmptyState())
   const [metierBData, setMetierBData] = useState<LoadedMetier>(createEmptyState())
 
+  // formations indexed by competenceId
+  const [formations, setFormations] = useState<Record<number, Formation[]>>({})
+
   const fetchAllMetiers = useCallback(async () => {
     setListLoading(true)
     setListError(null)
     try {
-      const buffer: Metier[] = []
-      const pageSize = 200
+      const buf: Metier[] = []
       let page = 0
       let totalPages = 1
       while (page < totalPages) {
-        const resp = await metierApi.list({ page, size: pageSize })
-        buffer.push(...resp.content)
-        totalPages = resp.totalPages || totalPages
+        const resp = await metierApi.list({ page, size: 200 })
+        buf.push(...resp.content)
+        totalPages = resp.totalPages || 1
         page += 1
         if (resp.totalPages === 0) break
       }
-      const map = new Map(buffer.map((item) => [item.id, item]))
-      const sorted = Array.from(map.values()).sort((a, b) =>
+      const sorted = Array.from(new Map(buf.map((m) => [m.id, m])).values()).sort((a, b) =>
         a.titre.localeCompare(b.titre, 'fr', { sensitivity: 'base' }),
       )
       setMetiers(sorted)
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : null
-      setListError(message || 'Impossible de charger la liste des métiers')
+    } catch (err) {
+      setListError(err instanceof Error ? err.message : 'Impossible de charger les métiers')
     } finally {
       setListLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    fetchAllMetiers()
-  }, [fetchAllMetiers])
+  useEffect(() => { fetchAllMetiers() }, [fetchAllMetiers])
 
-  const handleSelect = (slot: 'A' | 'B', value: string) => {
-    const parsed = value ? Number(value) : null
-    if (slot === 'A') {
-      setSelectedA(parsed)
-      if (parsed !== null && parsed === selectedB) setSelectedB(null)
-    } else {
-      setSelectedB(parsed)
-      if (parsed !== null && parsed === selectedA) setSelectedA(null)
+  const loadMetier = useCallback(async (id: number, setter: typeof setMetierAData) => {
+    setter((p) => ({ ...p, loading: true, error: null }))
+    try {
+      const [metier, activites, competences] = await Promise.all([
+        metierApi.getById(id),
+        activiteApi.list(id),
+        metierCompetenceApi.list(id),
+      ])
+      setter({ metier, activites, competences, loading: false, error: null })
+    } catch (err) {
+      setter((p) => ({ ...p, loading: false, error: err instanceof Error ? err.message : 'Chargement impossible' }))
     }
-  }
+  }, [])
 
   useEffect(() => {
+    if (!selectedA) { setMetierAData(createEmptyState()); return }
+    loadMetier(selectedA, setMetierAData)
+  }, [selectedA, loadMetier])
+
+  useEffect(() => {
+    if (!selectedB) { setMetierBData(createEmptyState()); return }
+    loadMetier(selectedB, setMetierBData)
+  }, [selectedB, loadMetier])
+
+  // Load formations for all competences of metier B when in evolution mode
+  useEffect(() => {
+    if (mode !== 'evolution' || metierBData.competences.length === 0) return
     let cancelled = false
-    if (!selectedA) {
-      setMetierAData(createEmptyState())
-      return () => {
-        cancelled = true
-      }
+    const load = async () => {
+      const entries = await Promise.all(
+        metierBData.competences.map(async (c) => {
+          try {
+            const fms = await formationApi.getByCompetenceId(c.competenceId)
+            return [c.competenceId, fms] as [number, Formation[]]
+          } catch {
+            return [c.competenceId, []] as [number, Formation[]]
+          }
+        }),
+      )
+      if (!cancelled) setFormations(Object.fromEntries(entries))
     }
-    setMetierAData((prev) => ({ ...prev, loading: true, error: null }))
-    ;(async () => {
-      try {
-        const [metier, activites, competences] = await Promise.all([
-          metierApi.getById(selectedA),
-          activiteApi.list(selectedA),
-          metierCompetenceApi.list(selectedA),
-        ])
-        if (!cancelled) {
-          setMetierAData({ metier, activites, competences, loading: false, error: null })
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : null
-        if (!cancelled) {
-          setMetierAData((prev) => ({ ...prev, loading: false, error: message || 'Chargement impossible' }))
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [selectedA])
-
-  useEffect(() => {
-    let cancelled = false
-    if (!selectedB) {
-      setMetierBData(createEmptyState())
-      return () => {
-        cancelled = true
-      }
-    }
-    setMetierBData((prev) => ({ ...prev, loading: true, error: null }))
-    ;(async () => {
-      try {
-        const [metier, activites, competences] = await Promise.all([
-          metierApi.getById(selectedB),
-          activiteApi.list(selectedB),
-          metierCompetenceApi.list(selectedB),
-        ])
-        if (!cancelled) {
-          setMetierBData({ metier, activites, competences, loading: false, error: null })
-        }
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : null
-        if (!cancelled) {
-          setMetierBData((prev) => ({ ...prev, loading: false, error: message || 'Chargement impossible' }))
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [selectedB])
+    load()
+    return () => { cancelled = true }
+  }, [mode, metierBData.competences])
 
   const filteredMetiers = useMemo(() => {
     const term = search.trim().toLowerCase()
     if (!term) return metiers
-    return metiers.filter((metier) => {
-      const titre = metier.titre.toLowerCase()
-      const famille = (metier.familleNom ?? '').toLowerCase()
-      return titre.includes(term) || famille.includes(term)
-    })
+    return metiers.filter((m) =>
+      m.titre.toLowerCase().includes(term) || (m.familleNom ?? '').toLowerCase().includes(term),
+    )
   }, [metiers, search])
 
-  const activiteKeysA = useMemo(
-    () => new Set(metierAData.activites.map((activite) => normalizeLabel(activite.libelle))),
-    [metierAData.activites],
-  )
-  const activiteKeysB = useMemo(
-    () => new Set(metierBData.activites.map((activite) => normalizeLabel(activite.libelle))),
-    [metierBData.activites],
-  )
-
-  const competenceIdsA = useMemo(
-    () => new Set(metierAData.competences.map((competence) => competence.competenceId)),
-    [metierAData.competences],
-  )
-  const competenceIdsB = useMemo(
-    () => new Set(metierBData.competences.map((competence) => competence.competenceId)),
-    [metierBData.competences],
-  )
+  const activiteKeysA = useMemo(() => new Set(metierAData.activites.map((a) => normalizeLabel(a.libelle))), [metierAData.activites])
+  const activiteKeysB = useMemo(() => new Set(metierBData.activites.map((a) => normalizeLabel(a.libelle))), [metierBData.activites])
+  const competenceIdsA = useMemo(() => new Set(metierAData.competences.map((c) => c.competenceId)), [metierAData.competences])
+  const competenceIdsB = useMemo(() => new Set(metierBData.competences.map((c) => c.competenceId)), [metierBData.competences])
 
   const activiteSummary = useMemo(() => {
     let common = 0
-    activiteKeysA.forEach((key) => {
-      if (activiteKeysB.has(key)) common += 1
-    })
-    return {
-      totalA: activiteKeysA.size,
-      totalB: activiteKeysB.size,
-      common,
-      uniqueA: Math.max(activiteKeysA.size - common, 0),
-      uniqueB: Math.max(activiteKeysB.size - common, 0),
-    }
+    activiteKeysA.forEach((k) => { if (activiteKeysB.has(k)) common++ })
+    return { common, uniqueA: Math.max(activiteKeysA.size - common, 0), uniqueB: Math.max(activiteKeysB.size - common, 0) }
   }, [activiteKeysA, activiteKeysB])
 
   const competenceSummary = useMemo(() => {
     let common = 0
-    competenceIdsA.forEach((id) => {
-      if (competenceIdsB.has(id)) common += 1
-    })
-    return {
-      totalA: competenceIdsA.size,
-      totalB: competenceIdsB.size,
-      common,
-      uniqueA: Math.max(competenceIdsA.size - common, 0),
-      uniqueB: Math.max(competenceIdsB.size - common, 0),
-    }
+    competenceIdsA.forEach((id) => { if (competenceIdsB.has(id)) common++ })
+    return { common, uniqueA: Math.max(competenceIdsA.size - common, 0), uniqueB: Math.max(competenceIdsB.size - common, 0) }
   }, [competenceIdsA, competenceIdsB])
 
+  const bothLoaded = Boolean(metierAData.metier && metierBData.metier)
   const labelA = metierAData.metier?.titre ?? 'Métier A'
   const labelB = metierBData.metier?.titre ?? 'Métier B'
 
-  const canSwap = Boolean(selectedA && selectedB)
-
-  const swapSelections = () => {
-    if (!canSwap) return
-    setSelectedA(selectedB)
-    setSelectedB(selectedA)
-  }
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      {/* Header */}
       <header className="mb-8 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-8 text-white shadow-lg">
-        <p className="text-sm uppercase tracking-[0.25em] text-white/70">Comparateur</p>
-        <h1 className="mt-2 text-3xl font-semibold">Comparer deux métiers SI</h1>
+        <p className="text-sm uppercase tracking-[0.25em] text-white/70">Référentiel SI</p>
+        <h1 className="mt-2 text-3xl font-semibold">Comparateur & Parcours d'évolution</h1>
         <p className="mt-3 max-w-3xl text-sm text-white/80">
-          Sélectionnez deux métiers du référentiel Cigref pour visualiser instantanément leurs activités clés et les
-          compétences attendues. Les éléments communs sont mis en avant pour faciliter l&apos;identification des
-          passerelles possibles entre métiers.
+          Comparez deux métiers ou simulez un parcours d'évolution : compétences communes, manquantes et formations disponibles dans la base.
         </p>
       </header>
 
+      {/* Sélection + mode */}
       <section className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-end">
           <div className="flex-1">
@@ -365,19 +460,20 @@ const MetiersComparisonPage = () => {
               type="search"
               placeholder="Rechercher par titre ou famille…"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
             />
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={swapSelections}
-              disabled={!canSwap}
-              className={`rounded-2xl px-4 py-2 text-sm font-medium transition ${canSwap ? 'bg-slate-900 text-white hover:bg-slate-800' : 'bg-slate-100 text-slate-400'}`}
-            >
-              Inverser
-            </button>
+          <div className="flex items-center gap-2">
+            {bothLoaded && (
+              <button
+                type="button"
+                onClick={() => { setSelectedA(selectedB); setSelectedB(selectedA) }}
+                className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition"
+              >
+                ⇄ Inverser
+              </button>
+            )}
             <button
               type="button"
               onClick={fetchAllMetiers}
@@ -388,122 +484,170 @@ const MetiersComparisonPage = () => {
           </div>
         </div>
 
-        {listError && (
-          <p className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{listError}</p>
-        )}
+        {listError && <p className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{listError}</p>}
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {/* Sélect A */}
           <div>
-            <label className="text-xs font-semibold uppercase text-slate-500">Métier A</label>
+            <label className="text-xs font-semibold uppercase text-slate-500">
+              {mode === 'evolution' ? '🧑 Métier actuel (A)' : 'Métier A'}
+            </label>
             <select
               value={selectedA ?? ''}
-              onChange={(event) => handleSelect('A', event.target.value)}
+              onChange={(e) => {
+                const v = e.target.value ? Number(e.target.value) : null
+                setSelectedA(v)
+                if (v !== null && v === selectedB) setSelectedB(null)
+              }}
               className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
             >
               <option value="">{listLoading ? 'Chargement…' : 'Sélectionner un métier'}</option>
-              {filteredMetiers.map((metier) => (
-                <option key={metier.id} value={metier.id} disabled={metier.id === selectedB}>
-                  {metier.titre}
-                  {metier.familleNom ? ` — ${metier.familleNom}` : ''}
+              {filteredMetiers.map((m) => (
+                <option key={m.id} value={m.id} disabled={m.id === selectedB}>
+                  {m.titre}{m.familleNom ? ` — ${m.familleNom}` : ''}
                 </option>
               ))}
             </select>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold uppercase text-slate-500">Métier B</label>
+          {/* Arrow + Sélect B */}
+          <div className="relative">
+            {mode === 'evolution' && bothLoaded && (
+              <div className="absolute -left-4 top-1/2 -translate-y-1/2 text-slate-400 text-2xl select-none hidden md:block">→</div>
+            )}
+            <label className="text-xs font-semibold uppercase text-slate-500">
+              {mode === 'evolution' ? '🎯 Métier cible (B)' : 'Métier B'}
+            </label>
             <select
               value={selectedB ?? ''}
-              onChange={(event) => handleSelect('B', event.target.value)}
-              className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+              onChange={(e) => {
+                const v = e.target.value ? Number(e.target.value) : null
+                setSelectedB(v)
+                if (v !== null && v === selectedA) setSelectedA(null)
+              }}
+              className="mt-1 w-full rounded-2xl border border-violet-200 px-4 py-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
             >
               <option value="">{listLoading ? 'Chargement…' : 'Sélectionner un métier'}</option>
-              {filteredMetiers.map((metier) => (
-                <option key={metier.id} value={metier.id} disabled={metier.id === selectedA}>
-                  {metier.titre}
-                  {metier.familleNom ? ` — ${metier.familleNom}` : ''}
+              {filteredMetiers.map((m) => (
+                <option key={m.id} value={m.id} disabled={m.id === selectedA}>
+                  {m.titre}{m.familleNom ? ` — ${m.familleNom}` : ''}
                 </option>
               ))}
             </select>
           </div>
         </div>
+
+        {/* Mode toggle */}
+        {bothLoaded && (
+          <div className="mt-6 flex items-center justify-center">
+            <div className="inline-flex rounded-2xl bg-slate-100 p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => setMode('comparaison')}
+                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${mode === 'comparaison' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                ⚖️ Comparaison côte à côte
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('evolution')}
+                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${mode === 'evolution' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                🚀 Parcours d'évolution A → B
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
+      {/* ── EVOLUTION MODE ─────────────────────────────────────────────────────── */}
+      {mode === 'evolution' && bothLoaded && (
+        <section className="mt-8">
+          <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 px-5 py-4">
+            <p className="text-sm font-semibold text-sky-800">
+              Parcours : <span className="text-sky-600">{labelA}</span>
+              <span className="mx-2 text-sky-400">→</span>
+              <span className="text-violet-700">{labelB}</span>
+            </p>
+            <p className="text-xs text-sky-600 mt-0.5">
+              Analyse des compétences manquantes, à renforcer, et formations disponibles en base.
+            </p>
+          </div>
+          <EvolutionView dataA={metierAData} dataB={metierBData} formations={formations} />
+        </section>
+      )}
+
+      {/* ── COMPARAISON MODE ───────────────────────────────────────────────────── */}
+      {mode === 'comparaison' && bothLoaded && (
+        <>
+          <section className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Activités</p>
               <h3 className="text-lg font-semibold text-slate-900">Comparaison des activités</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <SummaryCard title="Communes" value={activiteSummary.common} subtitle="Activités identiques" colorClass="text-emerald-600" />
+                <SummaryCard title={labelA} value={activiteSummary.uniqueA} subtitle="Spécifiques" colorClass="text-sky-600" />
+                <SummaryCard title={labelB} value={activiteSummary.uniqueB} subtitle="Spécifiques" colorClass="text-violet-600" />
+              </div>
             </div>
-            <span className="text-sm text-slate-500">Profil A & B</span>
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <SummaryCard title="Communes" value={activiteSummary.common} tone="emerald" subtitle="Activités identiques" />
-            <SummaryCard title={labelA} value={activiteSummary.uniqueA} tone="sky" subtitle="Spécifiques" />
-            <SummaryCard title={labelB} value={activiteSummary.uniqueB} tone="violet" subtitle="Spécifiques" />
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Compétences</p>
               <h3 className="text-lg font-semibold text-slate-900">Comparaison des compétences</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                <SummaryCard title="Communes" value={competenceSummary.common} subtitle="Compétences partagées" colorClass="text-emerald-600" />
+                <SummaryCard title={labelA} value={competenceSummary.uniqueA} subtitle="Spécifiques" colorClass="text-sky-600" />
+                <SummaryCard title={labelB} value={competenceSummary.uniqueB} subtitle="Spécifiques" colorClass="text-violet-600" />
+              </div>
             </div>
-            <span className="text-sm text-slate-500">Profil A & B</span>
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <SummaryCard title="Communes" value={competenceSummary.common} tone="emerald" subtitle="Compétences partagées" />
-            <SummaryCard title={labelA} value={competenceSummary.uniqueA} tone="sky" subtitle="Spécifiques" />
-            <SummaryCard title={labelB} value={competenceSummary.uniqueB} tone="violet" subtitle="Spécifiques" />
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="mt-8 space-y-10">
-        <div>
-          <div className="flex items-center justify-between">
+          <section className="mt-8 space-y-10">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Activités</p>
               <h3 className="text-lg font-semibold text-slate-900">Comparaison des activités</h3>
+              <div className="mt-4 grid gap-6 lg:grid-cols-2">
+                <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+                  <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Profil A</p>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4">{labelA}</h4>
+                  <ActivitiesList activites={metierAData.activites} counterpart={activiteKeysB} />
+                </div>
+                <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+                  <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Profil B</p>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4">{labelB}</h4>
+                  <ActivitiesList activites={metierBData.activites} counterpart={activiteKeysA} />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="mt-4 grid gap-6 lg:grid-cols-2">
-            <MetierPanel
-              data={metierAData}
-              label="Profil A"
-              renderContent={(data) => <ActivitiesList activites={data.activites} counterpart={activiteKeysB} />}
-            />
-            <MetierPanel
-              data={metierBData}
-              label="Profil B"
-              renderContent={(data) => <ActivitiesList activites={data.activites} counterpart={activiteKeysA} />}
-            />
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Compétences SI</p>
               <h3 className="text-lg font-semibold text-slate-900">Comparaison des compétences</h3>
+              <div className="mt-4 grid gap-6 lg:grid-cols-2">
+                <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+                  <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Profil A</p>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4">{labelA}</h4>
+                  <CompetencesList competences={metierAData.competences} counterpart={competenceIdsB} />
+                </div>
+                <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+                  <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">Profil B</p>
+                  <h4 className="text-lg font-semibold text-slate-900 mb-4">{labelB}</h4>
+                  <CompetencesList competences={metierBData.competences} counterpart={competenceIdsA} />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="mt-4 grid gap-6 lg:grid-cols-2">
-            <MetierPanel
-              data={metierAData}
-              label="Profil A"
-              renderContent={(data) => <CompetencesList competences={data.competences} counterpart={competenceIdsB} />}
-            />
-            <MetierPanel
-              data={metierBData}
-              label="Profil B"
-              renderContent={(data) => <CompetencesList competences={data.competences} counterpart={competenceIdsA} />}
-            />
-          </div>
+          </section>
+        </>
+      )}
+
+      {/* Empty state */}
+      {!bothLoaded && (
+        <div className="mt-12 rounded-3xl border border-dashed border-slate-300 bg-white/50 p-16 text-center">
+          <p className="text-4xl mb-4">🔍</p>
+          <p className="font-semibold text-slate-700">Sélectionnez deux métiers pour démarrer</p>
+          <p className="text-sm text-slate-500 mt-1">Utilisez le mode "Parcours d'évolution" pour obtenir le plan de formation personnalisé.</p>
         </div>
-      </section>
+      )}
+
+      <LogoFooter />
     </div>
   )
 }

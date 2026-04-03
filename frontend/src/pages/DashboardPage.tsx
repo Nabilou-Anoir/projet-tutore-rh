@@ -1,99 +1,155 @@
-import { useMemo } from 'react'
-import { useSurvey } from '../contexts/SurveyContext'
-import FileImport from '../components/FileImport'
-import MappingPanel from '../components/MappingPanel'
-import GeneralInfoSection from '../components/Results/GeneralInfoSection'
-import SkillsNeedsSection from '../components/Results/SkillsNeedsSection'
-import CertificationsSection from '../components/Results/CertificationsSection'
-import RecruitmentSection from '../components/Results/RecruitmentSection'
-import PerspectivesSection from '../components/Results/PerspectivesSection'
-import { calculateAggregates } from '../utils/aggregate'
-import { createEmptyMapping, loadStoredMapping, mappingIsReady, persistMapping } from '../utils/mapping'
-import { Aggregates, MappingConfig, SurveyRow } from '../types/survey'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import type { FamilleOverview } from '../types/referentiel'
+import { formationApi, referentielOverviewApi, competenceSIApi, metierApi } from '../utils/metiers.service'
+import LogoFooter from '../components/LogoFooter'
 
+const numberFormatter = new Intl.NumberFormat('fr-FR')
 
 const DashboardPage = () => {
-  const { rows, mapping, mappingValidated, handleImport } = useSurvey()
+  const [overview, setOverview] = useState<FamilleOverview[]>([])
+  const [formationCount, setFormationCount] = useState(0)
+  const [metierCount, setMetierCount] = useState(0)
+  const [competenceCount, setCompetenceCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const aggregates: Aggregates | null = useMemo(() => {
-    if (!mappingValidated || rows.length === 0) return null
-    return calculateAggregates(rows, mapping)
-  }, [mappingValidated, rows, mapping])
+  useEffect(() => {
+    let current = true
+    async function load() {
+      try {
+        const [overviewData, formations, competencesPage, metiersPage] = await Promise.all([
+          referentielOverviewApi.list(),
+          formationApi.list(),
+          competenceSIApi.list({ page: 0, size: 1 }),
+          metierApi.list({ page: 0, size: 1 }),
+        ])
+        if (!current) return
+        setOverview(overviewData)
+        setFormationCount(formations.length)
+        setCompetenceCount(competencesPage.totalElements)
+        setMetierCount(metiersPage.totalElements)
+        setError(null)
+      } catch (err) {
+        if (!current) return
+        setError(err instanceof Error ? err.message : 'Erreur inconnue')
+      } finally {
+        if (current) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      current = false
+    }
+  }, [])
 
-  // Le mapping panel et le bouton de validation sont masqués
+  const globalStats = useMemo(() => {
+    const totalFamilles = overview.length
+    const totalMetiers = metierCount
+    const actifs = overview.reduce((sum, item) => sum + item.metiersActifs, 0)
+    const competences = competenceCount
+
+    return {
+      totalFamilles,
+      totalMetiers,
+      actifs,
+      competences,
+      formationCount,
+    }
+  }, [overview, formationCount, competenceCount, metierCount])
+
+  const famillesByNiveau = useMemo(
+    () => [...overview].sort((a, b) => b.niveauMoyenRequis - a.niveauMoyenRequis),
+    [overview],
+  )
+
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 min-h-screen">
-      <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#3299CC' }}>
-        <div>
-          <p className="text-sm uppercase tracking-widest text-emerald-200">Observatoire compétences</p>
-          <h1 className="mt-2 text-3xl font-semibold">Analyse LimeSurvey des besoins en compétences numériques</h1>
-          <p className="mt-4 max-w-3xl text-base text-slate-100">
-            Importez le CSV anonymisé exporté de LimeSurvey et consultez directement la synthèse visuelle des
-            priorités des organisations, des certifications attendues et des besoins en recrutement.
-          </p>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 min-h-screen">
+      <header className="flex flex-col gap-6 rounded-3xl p-6 text-white shadow-xl sm:p-8" style={{ background: '#1f2937' }}>
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-semibold tracking-[0.3em] text-emerald-200 sm:text-sm uppercase">Référentiel SI</p>
+          <h1 className="text-2xl font-semibold leading-snug sm:text-3xl">Référentiel en un coup d’œil</h1>
         </div>
       </header>
 
-      <FileImport onImport={handleImport} />
-
-      {/* MappingPanel et messages de validation masqués car mapping auto */}
-
-      {mappingValidated && rows.length === 0 && (
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Impossible de calculer les résultats : aucun CSV chargé.
-        </p>
-      )}
-
-      {aggregates && (
-        <div className="space-y-6">
-          <GeneralInfoSection
-            q1Distribution={aggregates.generalInfo.q1Distribution}
-            q2Distribution={aggregates.generalInfo.q2Distribution}
-            totalResponses={aggregates.generalInfo.totalResponses}
-          />
-          <SkillsNeedsSection
-            scores={aggregates.skills.q3Scores}
-            top3={aggregates.skills.q3Top3}
-            topDomain={aggregates.skills.topDomain}
-            q5Responses={aggregates.skills.q5Responses}
-            warnings={aggregates.warnings}
-          />
-          <CertificationsSection
-            q8Distribution={aggregates.certifications.q8Distribution}
-            q7Counts={aggregates.certifications.q7Counts}
-            q7Other={aggregates.certifications.q7Other}
-            q7bisCounts={aggregates.certifications.q7bisCounts}
-            q7bisOther={aggregates.certifications.q7bisOther}
-            q8bisDistribution={aggregates.certifications.q8bisDistribution}
-          />
-          <RecruitmentSection
-            q9List={aggregates.recruitment.q9List}
-            q10List={aggregates.recruitment.q10List}
-            q11Distribution={aggregates.recruitment.q11Distribution}
-          />
-          <PerspectivesSection
-            q12List={aggregates.perspectives.q12List}
-            q13Distribution={aggregates.perspectives.q13Distribution}
-          />
+      {loading && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+          Chargement des données du référentiel…
         </div>
       )}
 
-      <footer className="mt-12 flex flex-row items-center justify-between py-6 w-full">
-        <img
-          src="/asinhpa-logo.png"
-          alt="Asinhpa Logo"
-          style={{ maxWidth: 300, width: '100%', height: 'auto' }}
-          className="ml-4"
-        />
-        <img
-          src="/isis-logo.png"
-          alt="ISIS Ingénieur Santé numérique"
-          style={{ maxWidth: 300, width: '100%', height: 'auto' }}
-          className="mr-4"
-        />
-      </footer>
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Impossible de récupérer les données : {error}
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard label="Familles suivies" value={globalStats.totalFamilles} />
+            <StatCard label="Métiers référencés" value={globalStats.totalMetiers} />
+            <StatCard label="Compétences distinctes" value={globalStats.competences} />
+            <StatCard label="Formations disponibles" value={globalStats.formationCount} />
+          </section>
+
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Carte du référentiel</p>
+                <h2 className="text-xl font-semibold text-slate-900">Familles de métiers</h2>
+              </div>
+              <p className="text-sm text-slate-500">Cliquez sur une carte pour approfondir la famille dans le référentiel.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {famillesByNiveau.map((famille, index) => (
+                <Link
+                  key={famille.familleId}
+                  to={`/referentiel/famille/${famille.familleId}`}
+                  className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-3xl">{famille.icone ?? '🗂️'}</div>
+                    <span className="text-xs font-semibold text-slate-400">#{index + 1}</span>
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">{famille.nom}</h3>
+                  <dl className="mt-4 space-y-2 text-sm text-slate-600">
+                    <div className="flex justify-between">
+                      <dt>Métiers référencés</dt>
+                      <dd>{numberFormatter.format(famille.metiersTotal)}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt>Compétences couvertes</dt>
+                      <dd>{numberFormatter.format(famille.competencesDistinctes)}</dd>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <dt>Niveau moyen requis</dt>
+                      <dd className="font-semibold text-slate-900">{famille.niveauMoyenRequis.toFixed(1)}</dd>
+                    </div>
+                  </dl>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+      <LogoFooter />
     </div>
   )
 }
+
+interface StatCardProps {
+  label: string
+  value: number | string
+  subtitle?: string
+}
+
+const StatCard = ({ label, value, subtitle }: StatCardProps) => (
+  <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{label}</p>
+    <p className="mt-3 text-3xl font-semibold text-slate-900">{typeof value === 'number' ? numberFormatter.format(value) : value}</p>
+    {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+  </div>
+)
 
 export default DashboardPage

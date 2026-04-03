@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { familleApi, metierApi } from '../utils/metiers.service'
 import type { Famille, Metier } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
+import LogoFooter from '../components/LogoFooter'
 
 export default function FamilleDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -268,6 +269,7 @@ export default function FamilleDetailPage() {
                     )}
                 </div>
             )}
+            <LogoFooter />
         </div>
     )
 }

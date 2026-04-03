@@ -4,6 +4,7 @@ import { competenceSIApi } from '../utils/metiers.service'
 import type { CompetenceSI, Metier } from '../types/referentiel'
 import FormationModal from '../components/Referentiel/FormationModal'
 import { useAuth } from '../contexts/AuthContext'
+import LogoFooter from '../components/LogoFooter'
 
 export default function CompetencesSIPage() {
     const [competences, setCompetences] = useState<CompetenceSI[]>([])
@@ -273,6 +274,7 @@ export default function CompetencesSIPage() {
                     onClose={() => setSelectedCompForFormations(null)} 
                 />
             )}
+            <LogoFooter />
         </div>
     )
 }

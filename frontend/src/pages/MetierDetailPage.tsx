@@ -6,6 +6,7 @@ import FormationModal from '../components/Referentiel/FormationModal'
 import NiveauBadge from '../components/Referentiel/NiveauBadge'
 import { NIVEAUX_SI } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
+import LogoFooter from '../components/LogoFooter'
 
 type Tab = 'activites' | 'competences'
 
@@ -527,6 +528,7 @@ export default function MetierDetailPage() {
                     onClose={() => setSelectedCompForFormations(null)} 
                 />
             )}
+            <LogoFooter />
         </div>
     )
 }

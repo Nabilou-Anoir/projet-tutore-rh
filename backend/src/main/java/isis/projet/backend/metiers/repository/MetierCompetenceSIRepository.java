@@ -3,6 +3,8 @@ package isis.projet.backend.metiers.repository;
 import isis.projet.backend.metiers.entity.MetierCompetenceId;
 import isis.projet.backend.metiers.entity.MetierCompetenceSI;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -16,4 +18,10 @@ public interface MetierCompetenceSIRepository extends JpaRepository<MetierCompet
     boolean existsByMetierIdAndCompetenceId(Long metierId, Long competenceId);
 
     boolean existsByCompetenceId(Long competenceId);
+
+    @Query("SELECT COUNT(DISTINCT mc.competence.id) FROM MetierCompetenceSI mc WHERE mc.metier.famille.id = :familleId")
+    long countDistinctCompetencesByFamille(@Param("familleId") Long familleId);
+
+    @Query("SELECT AVG(mc.niveauRequis) FROM MetierCompetenceSI mc WHERE mc.metier.famille.id = :familleId AND mc.niveauRequis IS NOT NULL")
+    Double averageNiveauByFamille(@Param("familleId") Long familleId);
 }

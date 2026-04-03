@@ -1,4 +1,5 @@
 import CvMatcher from '../components/CvMatcher/CvMatcherTest'
+import LogoFooter from '../components/LogoFooter'
 
 const CvMatcherPage = () => {
     return (
@@ -15,20 +16,7 @@ const CvMatcherPage = () => {
 
             <CvMatcher />
 
-            <footer className="mt-auto flex flex-row items-center justify-between py-6 w-full opacity-50">
-                <img
-                    src="/asinhpa-logo.png"
-                    alt="Asinhpa Logo"
-                    style={{ maxWidth: 200, width: '100%', height: 'auto' }}
-                    className="ml-4"
-                />
-                <img
-                    src="/isis-logo.png"
-                    alt="ISIS Ingénieur Santé numérique"
-                    style={{ maxWidth: 200, width: '100%', height: 'auto' }}
-                    className="mr-4"
-                />
-            </footer>
+            <LogoFooter />
         </div>
     )
 }

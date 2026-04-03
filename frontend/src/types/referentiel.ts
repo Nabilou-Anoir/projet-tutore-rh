@@ -13,6 +13,17 @@ export interface Famille {
   icone?: string
 }
 
+export interface FamilleOverview {
+  familleId: number
+  nom: string
+  icone?: string
+  ordre: number
+  metiersTotal: number
+  metiersActifs: number
+  competencesDistinctes: number
+  niveauMoyenRequis: number
+}
+
 export interface Metier {
   id: number
   familleId: number

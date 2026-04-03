@@ -31,14 +31,14 @@ const FileImport = ({ onImport }: FileImportProps) => {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-lg">
+    <section className="rounded-2xl bg-white p-4 shadow-lg sm:p-6">
       <header className="mb-4">
         <h2 className="text-xl font-semibold text-slate-900">Importer un CSV LimeSurvey</h2>
         <p className="text-sm text-slate-500">
           Les données restent sur votre machine. Utilisez l\'export CSV natif de LimeSurvey.
         </p>
       </header>
-      <label className="flex flex-col gap-3 rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-slate-600 hover:border-emerald-400">
+      <label className="flex flex-col gap-3 rounded-xl border-2 border-dashed border-slate-200 p-4 text-center text-slate-600 transition-colors hover:border-emerald-400 sm:p-6">
         <span className="font-medium">Déposer un fichier CSV ou cliquer pour sélectionner</span>
         <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleFileChange} />
       </label>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { familleApi } from '../utils/metiers.service'
 import type { Famille } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
+import LogoFooter from '../components/LogoFooter'
 
 const FAMILLE_ICONS = ['🏛', '📋', '💻', '🖥', '🎧', '🛡', '👥', '📊', '🤝']
 
@@ -96,21 +97,21 @@ export default function FamillesListPage() {
                 className="rounded-3xl p-8 text-white shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0ea5e9 100%)' }}
             >
-                <h1 className="text-3xl font-bold">Référentiel des Métiers en système d'information en santé</h1>
-                <p className="mt-3 max-w-3xl text-base text-blue-100">
-                    Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information en Santé.
-                </p>
+        <h1 className="text-2xl font-bold leading-tight sm:text-3xl">Référentiel des Métiers en système d'information en santé</h1>
+        <p className="mt-3 max-w-3xl text-sm text-blue-100 sm:text-base">
+            Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information en Santé.
+        </p>
             </header>
 
             {/* Stats + action */}
-            <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-500">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-medium text-slate-500 sm:text-base">
                     <span className="text-2xl font-bold text-slate-900">{familles.length}</span> famille{familles.length !== 1 ? 's' : ''}
                 </p>
                 {canEdit && (
                     <button
                         onClick={openCreate}
-                        className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95 sm:w-auto"
                         style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
                         title="Créer une nouvelle famille"
                     >
@@ -243,6 +244,8 @@ export default function FamillesListPage() {
                     <p className="text-slate-500">Aucune famille. Commencez par en créer une.</p>
                 </div>
             )}
+
+            <LogoFooter />
         </div>
     )
 }
