@@ -4,7 +4,7 @@ import LogoFooter from '../components/LogoFooter'
 const CvMatcherPage = () => {
     return (
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 min-h-screen">
-            <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#10b981' }}>
+            <header className="animate-in rounded-3xl p-8 text-white shadow-xl" style={{ background: '#10b981' }}>
                 <div>
                     <p className="text-sm uppercase tracking-widest text-emerald-100">Outil Recruteur</p>
                     <h1 className="mt-2 text-3xl font-semibold">Tri intelligent de CV par mots-clés</h1>
@@ -14,7 +14,9 @@ const CvMatcherPage = () => {
                 </div>
             </header>
 
-            <CvMatcher />
+            <div className="animate-in">
+                <CvMatcher />
+            </div>
 
             <LogoFooter />
         </div>

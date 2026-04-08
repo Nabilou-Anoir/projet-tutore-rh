@@ -208,9 +208,9 @@ export default function MetierDetailPage() {
     return (
         <div className="mx-auto max-w-5xl flex flex-col gap-6 px-4 py-8 min-h-screen">
             {/* Header */}
-            <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0ea5e9 100%)' }}>
+            <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#00679A' }}>
                 {metier?.familleId && (
-                    <Link to={`/referentiel/famille/${metier.familleId}`} className="text-sm text-blue-200 hover:text-white">
+                    <Link to={`/referentiel/famille/${metier.familleId}`} className="text-sm text-white/80 hover:text-white">
                         ← {metier.familleNom || 'Famille'}
                     </Link>
                 )}
@@ -221,7 +221,7 @@ export default function MetierDetailPage() {
                                 <h1 className="text-2xl font-bold">{metier?.titre}</h1>
                                 {metier && !metier.actif && <span className="rounded-full bg-white/20 px-3 py-0.5 text-xs">Inactif</span>}
                             </div>
-                            {canEdit && <button onClick={openEditMetier} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier</button>}
+                            {canEdit && <button onClick={openEditMetier} className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90" style={{ background: '#00567a' }}>✏️ Modifier</button>}
                         </div>
                         {metier?.description ? (
                             <p className="mt-2 text-blue-100 text-sm leading-relaxed max-w-4xl">{metier.description}</p>
@@ -253,14 +253,9 @@ export default function MetierDetailPage() {
                                 <textarea value={metierForm.description} onChange={e => setMetierForm({ ...metierForm, description: e.target.value })} rows={4}
                                     className="w-full resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
                             </div>
-                            <div className="flex items-center gap-3">
-                                <input type="checkbox" id="metierActif" checked={metierForm.actif} onChange={e => setMetierForm({ ...metierForm, actif: e.target.checked })}
-                                    className="h-4 w-4 rounded text-blue-600" />
-                                <label htmlFor="metierActif" className="text-sm text-slate-700">Métier actif</label>
-                            </div>
                             <div className="flex justify-end gap-3 pt-2">
                                 <button type="button" onClick={() => setShowMetierForm(false)} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Annuler</button>
-                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                     {saving ? 'Sauvegarde…' : 'Enregistrer'}
                                 </button>
                             </div>
@@ -306,7 +301,7 @@ export default function MetierDetailPage() {
                                     setShowActiviteForm(true); setEditActivite(null); setActiviteForm({ libelle: '', description: '', ordre: '' })
                                 }}
                                 className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
-                                style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                                style={{ background: '#00679A' }}
                             >
                                 + Ajouter une activité
                             </button>
@@ -329,7 +324,7 @@ export default function MetierDetailPage() {
                                     className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 bg-white w-28" />
                                 <div className="flex gap-2 justify-end items-center">
                                     <button type="button" onClick={() => { setShowActiviteForm(false); setEditActivite(null) }} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-white">Annuler</button>
-                                    <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                    <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                         {saving ? 'Chargement…' : (editActivite ? 'Mettre à jour' : 'Ajouter')}
                                     </button>
                                 </div>
@@ -379,7 +374,7 @@ export default function MetierDetailPage() {
                                     setShowCompForm(true)
                                 }}
                                 className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
-                                style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                                style={{ background: '#00679A' }}
                             >
                                 + Ajouter une compétence
                             </button>
@@ -444,14 +439,9 @@ export default function MetierDetailPage() {
                                         {NIVEAUX_SI.map(n => <option key={n.value} value={n.value}>{n.value} – {n.label}</option>)}
                                     </select>
                                 </div>
-                                <div className="flex items-center gap-3 pt-4">
-                                    <input type="checkbox" id="oblig" checked={compForm.obligatoire} onChange={e => setCompForm({ ...compForm, obligatoire: e.target.checked })}
-                                        className="h-4 w-4 rounded text-blue-600" />
-                                    <label htmlFor="oblig" className="text-sm text-slate-700">Obligatoire</label>
-                                </div>
                                 <div className="flex gap-2 justify-end items-center sm:col-span-2">
                                     <button type="button" onClick={() => { setShowCompForm(false); setCompType('catalog') }} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-white border border-transparent">Annuler</button>
-                                    <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                    <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                         {saving ? 'Ajout…' : 'Ajouter'}
                                     </button>
                                 </div>
@@ -472,14 +462,9 @@ export default function MetierDetailPage() {
                                             {NIVEAUX_SI.map(n => <option key={n.value} value={n.value}>{n.value} – {n.label}</option>)}
                                         </select>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <input type="checkbox" id="editOblig" checked={editCompForm.obligatoire} onChange={e => setEditCompForm({ ...editCompForm, obligatoire: e.target.checked })}
-                                            className="h-4 w-4 rounded text-blue-600" />
-                                        <label htmlFor="editOblig" className="text-sm text-slate-700">Obligatoire</label>
-                                    </div>
                                     <div className="flex justify-end gap-2 pt-2">
                                         <button type="button" onClick={() => setEditComp(null)} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Annuler</button>
-                                        <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                        <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                             {saving ? 'Mise à jour…' : 'Mettre à jour'}
                                         </button>
                                     </div>

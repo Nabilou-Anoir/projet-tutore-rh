@@ -51,7 +51,13 @@ export default function FamilleDetailPage() {
         setSaving(true)
         try {
             if (editMetier) {
-                await metierApi.update(editMetier.id, { titre: form.titre, description: form.description, missionCourte: form.missionCourte })
+                await metierApi.update(editMetier.id, {
+                    familleId,
+                    titre: form.titre,
+                    description: form.description,
+                    missionCourte: form.missionCourte,
+                    actif: editMetier.actif,
+                })
             } else {
                 await metierApi.create({ familleId, titre: form.titre, description: form.description, missionCourte: form.missionCourte, actif: true })
             }
@@ -110,14 +116,14 @@ export default function FamilleDetailPage() {
     return (
         <div className="mx-auto max-w-5xl flex flex-col gap-6 px-4 py-8 min-h-screen">
             {/* Header */}
-            <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0ea5e9 100%)' }}>
-                <Link to="/referentiel" className="text-sm text-blue-200 hover:text-white">← Toutes les familles</Link>
+            <header className="rounded-3xl p-8 text-white shadow-xl" style={{ background: '#00679A' }}>
+                <Link to="/referentiel" className="text-sm text-white/80 hover:text-white">← Toutes les familles</Link>
                 {loading && !famille ? <h1 className="mt-2 text-2xl font-bold opacity-50">Chargement…</h1> : (
                     <>
                         <div className="flex items-center justify-between mt-2">
                             <h1 className="text-3xl font-bold">{famille?.nom}</h1>
                             {canEdit && (
-                                <button onClick={openEditFamille} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-all">✏️ Modifier la famille</button>
+                                <button onClick={openEditFamille} className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90" style={{ background: '#00567a' }}>✏️ Modifier la famille</button>
                             )}
                         </div>
                         {famille?.description && <p className="mt-3 text-lg text-blue-100/90 leading-relaxed max-w-4xl">{famille.description}</p>}
@@ -151,7 +157,7 @@ export default function FamilleDetailPage() {
                             setShowForm(true); setEditMetier(null); setForm({ titre: '', description: '', missionCourte: '' })
                         }}
                         className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow"
-                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                        style={{ background: '#00679A' }}
                     >
                         <span>+</span> Nouveau métier
                     </button>
@@ -213,7 +219,7 @@ export default function FamilleDetailPage() {
                             </div>
                             <div className="flex justify-end gap-3 pt-2">
                                 <button type="button" onClick={() => { setShowForm(false); setEditMetier(null); }} className="rounded-xl px-4 py-2 text-sm text-slate-600 hover:bg-slate-100">Annuler</button>
-                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                     {saving ? 'Sauvegarde…' : (editMetier ? 'Mettre à jour' : 'Créer')}
                                 </button>
                             </div>

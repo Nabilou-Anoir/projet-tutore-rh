@@ -34,7 +34,19 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
             throw new Error(text)
         }
     }
-    return res.json() as Promise<T>
+    const hasBody = res.status !== 204 && res.status !== 205 && res.status !== 304
+    if (!hasBody) {
+        return undefined as T
+    }
+    const text = await res.text()
+    if (!text) {
+        return undefined as T
+    }
+    try {
+        return JSON.parse(text) as T
+    } catch {
+        throw new Error('Réponse serveur invalide')
+    }
 }
 
 // ─── Familles ────────────────────────────────────────────────────────────────

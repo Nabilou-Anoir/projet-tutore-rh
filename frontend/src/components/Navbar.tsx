@@ -3,11 +3,11 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const navLinks = [
-    { to: '/', label: 'Dashboard', icon: '📊' },
-    { to: '/referentiel', label: 'Référentiel', icon: '🗂️' },
-    { to: '/referentiel/comparateur', label: 'Comparateur', icon: '⚖️' },
-    { to: '/referentiel/formations', label: 'Formations', icon: '🎓' },
-    { to: '/cv-matcher', label: 'Tri CV IA', icon: '🤖' },
+    { to: '/', label: 'Dashboard'},
+    { to: '/referentiel', label: 'Référentiel'},
+    { to: '/referentiel/comparateur', label: "Comparateur & Évolution"},
+    { to: '/referentiel/formations', label: 'Formations & Compétences'},
+    { to: '/cv-matcher', label: 'Tri CV IA'},
 ]
 
 const Navbar = () => {
@@ -57,7 +57,7 @@ const Navbar = () => {
                 </button>
                 <div className="hidden items-center gap-1 md:flex">
                     {navLinks.map((link) => {
-                        const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to)
+                        const isActive = location.pathname === link.to
                         return (
                             <Link
                                 key={link.to}
@@ -67,7 +67,6 @@ const Navbar = () => {
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                     } whitespace-nowrap`}
                             >
-                                <span>{link.icon}</span>
                                 <span>{link.label}</span>
                             </Link>
                         )
@@ -100,7 +99,7 @@ const Navbar = () => {
                     <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4">
                         <div className="grid gap-2">
                             {navLinks.map((link) => {
-                                const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to)
+                                const isActive = location.pathname === link.to
                                 return (
                                     <Link
                                         key={link.to}
@@ -111,7 +110,6 @@ const Navbar = () => {
                                             : 'text-slate-600 hover:bg-slate-50'}`}
                                     >
                                         <span className="flex items-center gap-2">
-                                            <span>{link.icon}</span>
                                             {link.label}
                                         </span>
                                         <span className="text-xs text-slate-400">→</span>

@@ -94,17 +94,17 @@ export default function FamillesListPage() {
         <div className="mx-auto max-w-6xl flex flex-col gap-6 px-4 py-8 min-h-screen">
             {/* Header */}
             <header
-                className="rounded-3xl p-8 text-white shadow-xl"
-                style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 60%, #0ea5e9 100%)' }}
+                className="rounded-3xl p-8 text-white shadow-xl animate-in"
+                style={{ background: '#00679A' }}
             >
-        <h1 className="text-2xl font-bold leading-tight sm:text-3xl">Référentiel des Métiers en système d'information en santé</h1>
-        <p className="mt-3 max-w-3xl text-sm text-blue-100 sm:text-base">
-            Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information en Santé.
-        </p>
+                <h1 className="text-2xl font-bold leading-tight sm:text-3xl">Référentiel des Métiers en système d'information en santé</h1>
+                <p className="mt-3 max-w-3xl text-sm text-white/80 sm:text-base">
+                    Explorez la structure du référentiel : 9 familles regroupant les métiers du Système d'Information en Santé.
+                </p>
             </header>
 
             {/* Stats + action */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="animate-in flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm font-medium text-slate-500 sm:text-base">
                     <span className="text-2xl font-bold text-slate-900">{familles.length}</span> famille{familles.length !== 1 ? 's' : ''}
                 </p>
@@ -112,7 +112,7 @@ export default function FamillesListPage() {
                     <button
                         onClick={openCreate}
                         className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:shadow-lg active:scale-95 sm:w-auto"
-                        style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}
+                        style={{ background: '#00679A' }}
                         title="Créer une nouvelle famille"
                     >
                         <span className="text-lg">+</span> Nouvelle famille
@@ -121,15 +121,15 @@ export default function FamillesListPage() {
             </div>
 
             {!canEdit && (
-                <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <div className="animate-in rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
                     Mode lecture seule activé. Connectez-vous en RH pour modifier le référentiel.
                 </div>
             )}
 
             {/* Notifications */}
-            {success && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div>}
+            {success && <div className="animate-in rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{success}</div>}
             {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center">
+                <div className="animate-in rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex justify-between items-center">
                     {error}
                     <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">✕</button>
                 </div>
@@ -182,7 +182,7 @@ export default function FamillesListPage() {
                             </div>
                             <div className="flex justify-end gap-3 pt-2">
                                 <button type="button" onClick={() => setShowForm(false)} className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Annuler</button>
-                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #2563eb, #0ea5e9)' }}>
+                                <button type="submit" disabled={saving} className="rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ background: '#00679A' }}>
                                     {saving ? 'Création…' : 'Créer'}
                                 </button>
                             </div>
@@ -209,7 +209,7 @@ export default function FamillesListPage() {
                             onClick={() => navigate(`/referentiel/famille/${f.id}`)}
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <span className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl" style={{ background: '#2563eb18' }}>
+                                <span className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl" style={{ background: '#00679A1a' }}>
                                     {f.icone || FAMILLE_ICONS[i % FAMILLE_ICONS.length]}
                                 </span>
                                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">

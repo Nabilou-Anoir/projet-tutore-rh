@@ -45,6 +45,7 @@ La solution repose sur trois piliers :
 
 ## 2. Conception de la solution
 
+
 ### 2.1 Exigences fonctionnelles
 
 | Fonctionnalité | Description |
@@ -56,6 +57,43 @@ La solution repose sur trois piliers :
 | Matching CV | Analyse et classement automatique de CV par rapport au référentiel |
 | Tableau de bord | Vue synthétique des indicateurs RH |
 | Authentification | Système de sécurité via Firebase Authentication |
+
+### 2.1.1 Logique de structuration du référentiel : Cigref pour les métiers, ANAP pour les compétences
+
+Le référentiel intégré dans l'application repose sur une logique hybride, choisie pour répondre au contexte spécifique du numérique en santé.
+
+#### Structuration des métiers : nomenclature Cigref
+
+La structuration des métiers SI s'appuie sur la nomenclature **Cigref 2022**, qui fournit un cadre lisible et stable pour organiser les profils métiers en **9 familles** et **50 profils**. Cette nomenclature est utilisée comme socle pour :
+- classer les métiers du SI ;
+- afficher les familles et fiches métiers dans l'application ;
+- relier chaque métier à ses activités et à ses compétences attendues.
+
+Le Cigref est ici utilisé comme **référentiel de structuration des profils métiers SI**.
+
+#### Structuration des compétences : référentiel ANAP
+
+Pour les compétences, le projet adopte une logique prioritairement issue du référentiel **ANAP 2020 – Référentiel de compétences SI en structure sanitaire et médico-sociale**, plus adapté aux réalités du secteur de la santé numérique. Ce référentiel permet de décrire les compétences attendues dans les établissements sanitaires et médico-sociaux, aussi bien pour les professionnels SI que pour les rôles transverses et les usages métier.
+
+L'ANAP est donc utilisée comme **référentiel de structuration des compétences**, avec les principes suivants :
+- formulation homogène des compétences ;
+- descriptions orientées usages et contexte santé ;
+- granularité cohérente pour un usage RH, recrutement et formation ;
+- niveaux harmonisés sur l'échelle ANAP à **4 niveaux** :
+  - **1 = Notions**
+  - **2 = Intermédiaire**
+  - **3 = Avancé**
+  - **4 = Expert**
+
+#### Choix d'architecture fonctionnelle
+
+Le modèle retenu dans la base et dans l'application est donc le suivant :
+- **métiers** : structurés selon le **Cigref** ;
+- **compétences** : décrites selon une logique **ANAP / santé numérique** ;
+- **liaison métier-compétence** : utilisée pour exprimer le niveau attendu d'une compétence pour un métier donné.
+
+Ce choix permet de conserver un cadre métier SI reconnu et générique, tout en adaptant l'évaluation des compétences au contexte opérationnel des DRH du secteur sanitaire, médico-social et du numérique en santé.
+
 
 ### 2.2 Diagramme des cas d'utilisation (synthèse)
 
@@ -143,8 +181,8 @@ L'architecture suit un pattern **client-serveur découplé** (frontend SPA ↔ A
          │ JPA / Hibernate          │ REST
 ┌────────▼──────┐          ┌────────▼─────────────────┐
 │ H2 (dev)      │          │ Ollama (Mistral) – IA CV  │
-│ PostgreSQL     │          └──────────────────────────┘
-│ (production)  │
+│ MySQL (prod)  │          └──────────────────────────┘
+│ (Kubernetes)  │
 └───────────────┘
 ```
 
@@ -199,7 +237,7 @@ L'architecture suit un pattern **client-serveur découplé** (frontend SPA ↔ A
 #### 3.1.3 Base de données
 
 - **H2** (en mémoire) : environnement de développement local — accessible via console web
-- **PostgreSQL** : environnement de production/staging
+- **MySQL** : environnement de production, fourni par le cluster Kubernetes de l'école
 
 #### 3.1.4 Sécurité
 
@@ -220,8 +258,9 @@ Projet-tutore-RH/                    ← Monorepo Maven
 ├── backend/                         ← Module Spring Boot
 │   └── src/main/java/isis/projet/backend/
 │       ├── BackendApplication.java
-│       ├── config/                  ← Configuration CORS, Firebase, etc.
+│       ├── config/                  ← Configuration CORS, Firebase, OpenAPI, etc.
 │       ├── controller/              ← OllamaController (IA)
+│       ├── service/                 ← OllamaService (logique IA)
 │       ├── security/                ← FirebaseAuthenticationFilter, SecurityConfig
 │       ├── metiers/                 ← Module Métiers SI (Cigref)
 │       │   ├── entity/              ← Famille, Metier, Activite, CompetenceSI,
@@ -238,26 +277,37 @@ Projet-tutore-RH/                    ← Monorepo Maven
 ├── frontend/                        ← Module React + TypeScript
 │   └── src/
 │       ├── App.tsx                  ← Routage principal
+│       ├── firebase.ts              ← Configuration Firebase côté client
 │       ├── pages/                   ← DashboardPage, FamillesListPage,
-│       │                               MetierDetailPage, CompetencesSIPage,
-│       │                               FormationsPage, MetiersComparisonPage, CvMatcherPage
-│       ├── components/              ← Navbar, MappingPanel, Referentiel/, CvMatcher/
+│       │                               FamilleDetailPage, MetierDetailPage,
+│       │                               CompetencesSIPage, FormationsPage,
+│       │                               MetiersComparisonPage, CvMatcherPage
+│       ├── components/              ← Navbar, MappingPanel, FileImport,
+│       │                               LogoFooter, Referentiel/, CvMatcher/, Results/
 │       ├── contexts/                ← AuthContext, SurveyContext, CvMatcherContext
 │       ├── api/                     ← cvApi.ts (appels backend)
-│       ├── types/                   ← Interfaces TypeScript
-│       └── utils/
-├── .gitlab-ci.yml                   ← Pipeline CI/CD (build + push Docker)
+│       ├── types/                   ← Interfaces TypeScript (cv, referentiel, survey)
+│       └── utils/                   ← Fonctions utilitaires (CSV, PDF, matching, etc.)
+├── kubernetes/                      ← Manifestes de déploiement Kubernetes
+│   ├── backend-deployment.yaml
+│   ├── backend-service.yaml
+│   ├── frontend-deployment.yaml
+│   ├── frontend-service.yaml
+│   ├── frontend-ingress.yaml
+│   └── firebase-service-account-sealed.yaml
+├── .gitlab-ci.yml                   ← Pipeline CI/CD GitLab (build + push registry)
 ├── Dockerfile.backend
 ├── Dockerfile.frontend
-├── docker-compose.yml
+├── docker-compose.yml               ← Orchestration locale (dev)
 └── pom.xml                          ← POM parent (monorepo)
 ```
 
 ### 3.3 Gestion de versions et DevOps
 
 #### Versioning Git
-- Dépôt Git avec branches de fonctionnalités
+- Dépôt Git hébergé sur **GitLab** (instance de l'école)
 - Organisation en monorepo : frontend et backend dans le même dépôt
+- Branches de fonctionnalités avec merge requests
 
 #### Intégration Continue (GitLab CI)
 
@@ -270,13 +320,35 @@ package → package_frontend (Docker build + push registry GitLab)
         → package_backend  (Docker build + push registry GitLab)
 ```
 
+Les images Docker sont poussées sur le **registre de conteneurs GitLab** de l'école, puis déployées sur le cluster Kubernetes.
+
 #### Conteneurisation
 
 | Fichier | Description |
 |---|---|
 | `Dockerfile.backend` | Image Spring Boot JAR Java 21 |
 | `Dockerfile.frontend` | Image Nginx servant le build Vite |
-| `docker-compose.yml` | Orchestration locale (backend + frontend) |
+| `docker-compose.yml` | Orchestration locale (dev) |
+
+#### Déploiement en production (Kubernetes)
+
+L'application est déployée sur le **cluster Kubernetes de l'école ISIS**. Les manifestes de déploiement se trouvent dans le dossier `kubernetes/` :
+
+| Manifeste | Description |
+|---|---|
+| `backend-deployment.yaml` | Déploiement du backend Spring Boot |
+| `backend-service.yaml` | Service Kubernetes exposant le backend |
+| `frontend-deployment.yaml` | Déploiement du frontend Nginx |
+| `frontend-service.yaml` | Service Kubernetes exposant le frontend |
+| `frontend-ingress.yaml` | Ingress pour l'accès externe (HTTPS) |
+| `firebase-service-account-sealed.yaml` | Secret scellé pour les credentials Firebase |
+
+**Pipeline de déploiement complet :**
+```
+GitLab CI → Build images Docker → Push registre GitLab → Deploy Kubernetes (école ISIS)
+```
+
+**Base de données de production :** l'application utilise la base **MySQL** fournie par l'infrastructure Kubernetes de l'école, remplaçant la base H2 en mémoire utilisée en développement.
 
 ---
 
@@ -364,7 +436,7 @@ Visualisez et manipulez les données en développement :
 - **JDBC URL** : `jdbc:h2:mem:testdb`
 - **User** : `sa` | **Password** : *(vide)*
 
-> Connexion client externe (IntelliJ, DBeaver) : `jdbc:h2:tcp://localhost:9092/mem:testdb`
+> Connexion client externe (IntelliJ, DBeaver) : `jdbc:h2:tcp://localhost:9100/mem:testdb`
 
 ### Intelligence Artificielle – Ollama
 ```bash
@@ -404,4 +476,4 @@ java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
 
 ---
 
-*Rapport d'avancement – Décembre 2025 | École d'Ingénieurs ISIS – FIE 4 Promotion 2027*
+*Rapport d'avancement – Avril 2026 | École d'Ingénieurs ISIS – FIE 4 Promotion 2027*
