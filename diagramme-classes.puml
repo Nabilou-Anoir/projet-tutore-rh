@@ -1,0 +1,72 @@
+@startuml Diagramme de Classes - Projet Tuteuré RH ASINHPA
+
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    FontColor #202124
+    HeaderBackgroundColor #E8F0FE
+    ArrowColor #5F6368
+}
+
+skinparam package {
+    BackgroundColor #F8F9FA
+    BorderColor #DADCE0
+    FontColor #202124
+}
+
+title <b>Diagramme de Classes (Conceptuel)</b>\nProjet Tuteuré RH – ASINHPA
+
+package "Domaine Métiers SI" #E8F5E9 {
+
+    class Famille {
+        - id: Long
+        - nom : String
+        - description : String
+    }
+
+    class Metier {
+        - id : String
+        - titre : String
+        - description : String
+    }
+
+    class Activite {
+        - id : String
+        - libelle : String
+        - description : String
+    }
+
+    class CompetenceSI {
+        - nom : String
+        - description : String
+    }
+
+    class MetierCompetenceSI {
+        - niveauRequis : Integer
+        - obligatoire : Boolean
+    }
+
+    class Formation {
+        - id : String
+        - descrption : String
+        - nom : String
+        - url : String
+        - organisme : String
+    }
+}
+
+
+' Relations
+Famille "1" *-- "*" Metier : contient >
+Metier "1" *-- "*" Activite : comporte >
+
+Metier "1" *-- "*" MetierCompetenceSI : requiert >
+MetierCompetenceSI "*" --> "1" CompetenceSI : référence >
+
+Formation "*" -- "*" CompetenceSI : développe >
+@enduml

@@ -1,0 +1,78 @@
+@startuml Diagramme de Cas d'Utilisation - DRH
+
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+
+skinparam usecase {
+    BackgroundColor #E8F0FE
+    BorderColor #1A73E8
+    FontColor #202124
+    ArrowColor #5F6368
+}
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    FontColor #202124
+}
+
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    FontColor #202124
+    RoundCorner 15
+}
+
+left to right direction
+
+actor "Directeur des Ressources Humaines\n(DRH)" as DRH #E8F5E9
+
+rectangle "Application Web RH – Espace DRH" {
+
+    package "Authentification et Sécurité" #FFEBEE {
+        usecase "S'authentifier sur la plateforme\n(Firebase Auth)" as UC_LOGIN
+    }
+
+    package "Exploration du Référentiel" #E8F5E9 {
+        usecase "Consulter les fiches métiers\n(Cigref)" as UC_METIER
+        usecase "Rechercher des compétences\npar domaine" as UC_COMP
+        usecase "Consulter le catalogue\ndes formations" as UC_FORM
+    }
+
+    package "Outils d'Aide à la Décision" #F3E5F5 {
+        usecase "Comparer deux profils\nmétiers côte à côte" as UC_COMPARE
+        usecase "Simuler un parcours\nd'évolution (A → B)" as UC_EVO
+        usecase "Obtenir un plan\nde formation cible" as UC_PLAN
+    }
+
+    package "Recrutement Intelligent" #FCE4EC {
+        usecase "Importer un lot de CV\n(PDF/Texte)" as UC_UPLOAD
+        usecase "Trier automatiquement les CV\nvia Intelligence Artificielle" as UC_MATCH
+    }
+
+    package "Suivi Stratégique" #E1F5FE {
+        usecase "Consulter les indicateurs\nglobaux (Dashboard)" as UC_DASH
+    }
+}
+
+' Relations principales
+DRH --> UC_LOGIN
+
+DRH --> UC_METIER
+DRH --> UC_COMP
+DRH --> UC_FORM
+
+DRH --> UC_COMPARE
+DRH --> UC_EVO
+
+DRH --> UC_UPLOAD
+DRH --> UC_DASH
+
+' Inclusions / Extensions
+UC_EVO ..> UC_PLAN : <<include>>
+UC_UPLOAD ..> UC_MATCH : <<include>>
+UC_FORM ..> UC_COMP : <<extend>> (depuis une compétence)
+
+@enduml

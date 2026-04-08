@@ -1,0 +1,161 @@
+@startuml Diagramme de Cas d'Utilisation - Projet Tuteuré RH ASINHPA
+
+' ═══════════════════════════════════════════════════════════════
+' Projet Tuteuré RH – ASINHPA
+' Diagramme de Cas d'Utilisation (UML)
+' ═══════════════════════════════════════════════════════════════
+
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+
+skinparam usecase {
+    BackgroundColor #E8F0FE
+    BorderColor #1A73E8
+    FontColor #202124
+    ArrowColor #5F6368
+    StereotypeFontColor #1A73E8
+}
+
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    FontColor #202124
+}
+
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    FontColor #202124
+    RoundCorner 15
+}
+
+left to right direction
+
+' ─── Acteurs ──────────────────────────────────────────────────
+actor "DRH / Utilisateur\n(Membre ASINHPA)" as DRH #E8F5E9
+actor "Administrateur\n(Rôle RH)" as Admin #FFF3E0
+actor "Système IA\n(Ollama / Mistral)" as IA #F3E5F5
+actor "Firebase\nAuthentication" as Firebase #FFEBEE
+
+' ─── Système ──────────────────────────────────────────────────
+rectangle "Application Web RH – ASINHPA" {
+
+    ' --- Authentification ---
+    package "Authentification" #FFEBEE {
+        usecase "Se connecter\n(Firebase Auth)" as UC_LOGIN
+        usecase "Se déconnecter" as UC_LOGOUT
+        usecase "Vérifier le token JWT" as UC_VERIFY_TOKEN
+    }
+
+    ' --- Tableau de bord ---
+    package "Tableau de bord" #E8F0FE {
+        usecase "Consulter le dashboard\n(KPIs globaux)" as UC_DASHBOARD
+        usecase "Visualiser les statistiques\n(graphiques Recharts)" as UC_STATS
+    }
+
+    ' --- Référentiel Métiers (Cigref) ---
+    package "Référentiel Métiers (Cigref)" #E8F5E9 {
+        usecase "Consulter les familles\nmétiers (9 familles)" as UC_FAMILLES
+        usecase "Consulter le détail\nd'une famille" as UC_FAMILLE_DETAIL
+        usecase "Consulter la fiche\nd'un métier" as UC_METIER_DETAIL
+        usecase "Consulter les activités\nd'un métier" as UC_ACTIVITES
+        usecase "Filtrer / rechercher\ndes métiers" as UC_FILTRER_METIERS
+    }
+
+    ' --- Gestion des Compétences SI ---
+    package "Gestion des Compétences SI" #FFF3E0 {
+        usecase "Consulter le catalogue\ndes compétences SI" as UC_COMPETENCES
+        usecase "Filtrer les compétences\npar domaine" as UC_FILTRER_COMP
+        usecase "Créer une compétence SI" as UC_CREATE_COMP
+        usecase "Modifier une compétence SI" as UC_UPDATE_COMP
+        usecase "Supprimer une compétence SI" as UC_DELETE_COMP
+    }
+
+    ' --- Gestion des Formations ---
+    package "Gestion des Formations" #E1F5FE {
+        usecase "Consulter le catalogue\ndes formations" as UC_FORMATIONS
+        usecase "Voir les formations\nliées à une compétence" as UC_FORM_COMP
+        usecase "Créer une formation" as UC_CREATE_FORM
+        usecase "Modifier une formation" as UC_UPDATE_FORM
+        usecase "Supprimer une formation" as UC_DELETE_FORM
+    }
+
+    ' --- Comparateur de Métiers ---
+    package "Comparateur de Métiers" #F3E5F5 {
+        usecase "Comparer deux métiers\ncôte à côte" as UC_COMPARER
+        usecase "Simuler un parcours\nd'évolution (A → B)" as UC_EVOLUTION
+        usecase "Identifier les compétences\ncommunes / spécifiques" as UC_COMMUNES
+        usecase "Consulter le plan de\nformation personnalisé" as UC_PLAN_FORM
+    }
+
+    ' --- CV Matcher (IA) ---
+    package "CV Matcher (IA)" #FCE4EC {
+        usecase "Importer des CV\n(PDF / texte)" as UC_UPLOAD_CV
+        usecase "Analyser et classer\nles CV par mots-clés" as UC_MATCH_CV
+        usecase "Vérifier le statut\ndu modèle IA" as UC_IA_STATUS
+        usecase "Préchauffer le modèle\nIA (warmup)" as UC_IA_WARMUP
+    }
+}
+
+' ═══════════════════════════════════════════════════════════════
+' Relations Acteurs → Cas d'utilisation
+' ═══════════════════════════════════════════════════════════════
+
+' --- DRH ---
+DRH --> UC_LOGIN
+DRH --> UC_LOGOUT
+DRH --> UC_DASHBOARD
+DRH --> UC_STATS
+DRH --> UC_FAMILLES
+DRH --> UC_FAMILLE_DETAIL
+DRH --> UC_METIER_DETAIL
+DRH --> UC_ACTIVITES
+DRH --> UC_FILTRER_METIERS
+DRH --> UC_COMPETENCES
+DRH --> UC_FILTRER_COMP
+DRH --> UC_FORMATIONS
+DRH --> UC_FORM_COMP
+DRH --> UC_COMPARER
+DRH --> UC_EVOLUTION
+DRH --> UC_UPLOAD_CV
+
+' --- Administrateur (hérite du DRH + CRUD) ---
+Admin --|> DRH : <<étend>>
+Admin --> UC_CREATE_COMP
+Admin --> UC_UPDATE_COMP
+Admin --> UC_DELETE_COMP
+Admin --> UC_CREATE_FORM
+Admin --> UC_UPDATE_FORM
+Admin --> UC_DELETE_FORM
+Admin --> UC_IA_STATUS
+Admin --> UC_IA_WARMUP
+
+' --- Système IA ---
+IA --> UC_MATCH_CV
+IA --> UC_IA_STATUS
+
+' --- Firebase ---
+Firebase --> UC_VERIFY_TOKEN
+
+' ═══════════════════════════════════════════════════════════════
+' Relations entre cas d'utilisation
+' ═══════════════════════════════════════════════════════════════
+
+' --- Include ---
+UC_LOGIN ..> UC_VERIFY_TOKEN : <<include>>
+UC_MATCH_CV ..> UC_IA_STATUS : <<include>>
+UC_UPLOAD_CV ..> UC_MATCH_CV : <<include>>
+UC_EVOLUTION ..> UC_COMMUNES : <<include>>
+UC_EVOLUTION ..> UC_PLAN_FORM : <<include>>
+UC_COMPARER ..> UC_COMMUNES : <<include>>
+
+' --- Extend ---
+UC_FAMILLE_DETAIL ..> UC_FAMILLES : <<extend>>
+UC_METIER_DETAIL ..> UC_FAMILLE_DETAIL : <<extend>>
+UC_ACTIVITES ..> UC_METIER_DETAIL : <<extend>>
+UC_FORM_COMP ..> UC_COMPETENCES : <<extend>>
+UC_STATS ..> UC_DASHBOARD : <<extend>>
+
+@enduml

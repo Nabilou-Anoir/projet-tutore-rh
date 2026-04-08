@@ -1,0 +1,38 @@
+@startuml Architecture Logicielle Simplifiée - Projet Tuteuré RH ASINHPA
+
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+skinparam componentStyle rectangle
+
+skinparam node {
+    BackgroundColor #FFFFFF
+    BorderColor #1A73E8
+    RoundCorner 15
+}
+
+title <b>Architecture Logicielle (Essentielle)</b>\nProjet Tuteuré RH – ASINHPA
+
+node "Navigateur Web Client" {
+    component "Frontend (React / TypeScript SPA)" as Frontend #E8F5E9
+}
+
+node "Infrastructure (Serveurs)" {
+    component "Backend (Spring Boot 3 / Java)" as Backend #E8F0FE
+    database "Base de Données (MySQL)" as DB #FFF3E0
+    component "Serveur IA (Ollama / Mistral)" as Ollama #F3E5F5
+}
+
+cloud "Services Cloud" {
+    node "Firebase Authentication" as Firebase #FFEBEE
+}
+
+' Relations principales
+Frontend --> Backend : Appels API REST (HTTP / JSON)
+Frontend .> Firebase : Connexion (Token JWT)
+Backend .> Firebase : Vérification du Token
+Backend --> DB : Lecture / Écriture des données
+Backend --> Ollama : Requêtes IA (Lecture de CV)
+
+@enduml
