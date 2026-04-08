@@ -5,6 +5,8 @@ import type { Famille, Metier } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
 import LogoFooter from '../components/LogoFooter'
 
+const STORAGE_KEY_PREFIX = 'famille-detail-state-'
+
 export default function FamilleDetailPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
@@ -36,6 +38,32 @@ export default function FamilleDetailPage() {
     }
 
     useEffect(() => { if (familleId) load() }, [familleId])
+
+    useEffect(() => {
+        if (!familleId || typeof window === 'undefined') return
+        try {
+            const raw = window.localStorage.getItem(`${STORAGE_KEY_PREFIX}${familleId}`)
+            if (!raw) return
+            const saved = JSON.parse(raw) as { search?: string }
+            if (typeof saved.search === 'string') setSearch(saved.search)
+        } catch (err) {
+            console.warn('Impossible de restaurer l’état de la famille', err)
+        }
+    }, [familleId])
+
+    useEffect(() => {
+        if (!familleId || typeof window === 'undefined') return
+        try {
+            const key = `${STORAGE_KEY_PREFIX}${familleId}`
+            if (search) {
+                window.localStorage.setItem(key, JSON.stringify({ search }))
+            } else {
+                window.localStorage.removeItem(key)
+            }
+        } catch (err) {
+            console.warn('Impossible de sauvegarder l’état de la famille', err)
+        }
+    }, [familleId, search])
 
     const guardRh = () => {
         if (!canEdit) {

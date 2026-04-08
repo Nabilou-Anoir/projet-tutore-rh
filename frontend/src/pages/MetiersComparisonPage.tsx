@@ -5,6 +5,8 @@ import { NIVEAUX_SI } from '../types/referentiel'
 import { activiteApi, formationApi, metierApi, metierCompetenceApi } from '../utils/metiers.service'
 import LogoFooter from '../components/LogoFooter'
 
+const STORAGE_KEY = 'metiers-comparison-state-v1'
+
 type LoadedMetier = {
   metier: Metier | null
   activites: Activite[]
@@ -339,6 +341,38 @@ const MetiersComparisonPage = () => {
   }, [])
 
   useEffect(() => { fetchAllMetiers() }, [fetchAllMetiers])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw) as {
+        selectedA: number | null
+        selectedB: number | null
+        mode: 'comparaison' | 'evolution'
+      }
+      if (typeof saved.selectedA === 'number') setSelectedA(saved.selectedA)
+      if (typeof saved.selectedB === 'number') setSelectedB(saved.selectedB)
+      if (saved.mode === 'comparaison' || saved.mode === 'evolution') setMode(saved.mode)
+    } catch (err) {
+      console.warn('Impossible de restaurer la sélection du comparateur', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const payload = { selectedA, selectedB, mode }
+      if (payload.selectedA !== null || payload.selectedB !== null || payload.mode !== 'comparaison') {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+      } else {
+        window.localStorage.removeItem(STORAGE_KEY)
+      }
+    } catch (err) {
+      console.warn('Impossible de sauvegarder la sélection du comparateur', err)
+    }
+  }, [selectedA, selectedB, mode])
 
   const loadMetier = useCallback(async (id: number, setter: typeof setMetierAData) => {
     setter((p) => ({ ...p, loading: true, error: null }))

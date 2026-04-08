@@ -28,11 +28,11 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/static/**",
                                 "/favicon.ico",
-                                "/api/**",
-                                "/rest/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .requestMatchers("/api/**", "/rest/**").hasRole("RH")
                         .anyRequest().authenticated()
                 )

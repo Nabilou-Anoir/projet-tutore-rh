@@ -10,6 +10,8 @@ import LogoFooter from '../components/LogoFooter'
 
 type Tab = 'activites' | 'competences'
 
+const TAB_STORAGE_KEY = 'metier-detail-active-tab'
+
 export default function MetierDetailPage() {
     const { id } = useParams<{ id: string }>()
     const metierId = Number(id)
@@ -76,6 +78,29 @@ export default function MetierDetailPage() {
     useEffect(() => {
         loadAll()
     }, [metierId])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        try {
+            const raw = window.localStorage.getItem(TAB_STORAGE_KEY)
+            if (!raw) return
+            const saved = JSON.parse(raw) as { tab?: Tab }
+            if (saved.tab === 'activites' || saved.tab === 'competences') {
+                setTab(saved.tab)
+            }
+        } catch (err) {
+            console.warn('Impossible de restaurer l’onglet du métier', err)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        try {
+            window.localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify({ tab }))
+        } catch (err) {
+            console.warn('Impossible de sauvegarder l’onglet du métier', err)
+        }
+    }, [tab])
 
     // ─── Métier ──────────────────────────────────────────────────────────────────
     const guardRh = () => {
