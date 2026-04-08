@@ -23,5 +23,5 @@ public interface MetierCompetenceSIRepository extends JpaRepository<MetierCompet
     long countDistinctCompetencesByFamille(@Param("familleId") Long familleId);
 
     @Query("SELECT AVG(mc.niveauRequis) FROM MetierCompetenceSI mc WHERE mc.metier.famille.id = :familleId AND mc.niveauRequis IS NOT NULL")
-    Double averageNiveauByFamille(@Param("familleId") Long familleId);
+    Number averageNiveauByFamille(@Param("familleId") Long familleId);
 }

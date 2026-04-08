@@ -37,9 +37,9 @@ public class ReferentielOverviewService {
         long totalMetiers = metierRepository.countByFamilleId(familleId);
         long metiersActifs = metierRepository.countByFamilleIdAndActifTrue(familleId);
         long competencesDistinctes = metierCompetenceRepository.countDistinctCompetencesByFamille(familleId);
-        Double moyenne = metierCompetenceRepository.averageNiveauByFamille(familleId);
+        Number moyenne = metierCompetenceRepository.averageNiveauByFamille(familleId);
         double niveauMoyen = moyenne == null ? 0d
-                : BigDecimal.valueOf(moyenne)
+                : BigDecimal.valueOf(moyenne.doubleValue())
                 .setScale(2, RoundingMode.HALF_UP)
                 .doubleValue();
 
