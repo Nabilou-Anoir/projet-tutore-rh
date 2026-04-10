@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
+  namespace: projetasinhpa
 spec:
   replicas: 1
   selector:
@@ -14,13 +15,38 @@ spec:
     spec:
       containers:
         - name: backend
-          image: registry.gitlab.com/nabilou-anoir/projet-tutore-rh/backend:20260401-amd64
+          image: registry.gitlab.com/nabilou-anoir/projet-tutore-rh/backend:20260410-mysql
           imagePullPolicy: Always
           ports:
             - containerPort: 8989
           env:
             - name: JAVA_OPTS
               value: ""
+
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: login
+
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: password
+
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql.mysql.svc.cluster.local:3306/projetasinhpa
+
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: update
+
+            - name: SPRING_SQL_INIT_MODE
+              value: never
+
+            - name: SPRING_H2_CONSOLE_ENABLED
+              value: "false"
+
           volumeMounts:
             - name: firebase-service-account-volume
               mountPath: /app/firebase-service-account.json
