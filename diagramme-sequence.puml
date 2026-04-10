@@ -1,0 +1,51 @@
+@startuml
+skinparam style strictuml
+
+actor "Responsable RH" as RH
+participant "Interface Utilisateur\n(Dashboard)" as UI
+participant "Contrôleur Backend\n(API Referentiel)" as API
+participant "Service d'Analyse\n(ReferentielOverviewService)" as Service
+database "Base de Données RH" as DB
+
+RH -> UI : Consulte le tableau de bord RH
+activate UI
+
+UI -> API : Demande les données statistiques\n(GET /api/referentiel/overview)
+activate API
+
+API -> Service : Récupérer la vue d'ensemble()
+activate Service
+
+Service -> DB : Extraire la liste des familles de métiers
+activate DB
+DB --> Service : Liste des familles
+deactivate DB
+
+loop Pour chaque famille de métiers
+    Service -> DB : Compter le nombre de métiers\n(total et actifs)
+    activate DB
+    DB --> Service : Nombres de métiers
+    deactivate DB
+    
+    Service -> DB : Évaluer le nombre de compétences
+    activate DB
+    DB --> Service : Nombre de compétences
+    deactivate DB
+    
+    Service -> DB : Calculer le niveau moyen d'expertise requis
+    activate DB
+    DB --> Service : Niveau moyen visé
+    deactivate DB
+    
+    Service -> Service : Consolider les indicateurs de la famille
+end
+
+Service --> API : Données statistiques consolidées
+deactivate Service
+
+API --> UI : Réponse JSON formatée
+deactivate API
+
+UI --> RH : Affichage des graphiques et KPI métiers
+deactivate UI
+@enduml

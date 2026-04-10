@@ -1,9 +1,105 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { formationApi, competenceSIApi } from '../utils/metiers.service'
 import type { Formation, CompetenceSI } from '../types/referentiel'
 import { useAuth } from '../contexts/AuthContext'
 import LogoFooter from '../components/LogoFooter'
+
+const masteryLevels = [
+    {
+        id: 'level-1',
+        icon: '🟢',
+        title: 'Niveau 1 — Notions',
+        badgeClass: 'bg-emerald-100 text-emerald-700',
+        borderClass: 'border-emerald-100',
+        definition: 'Le niveau Notions correspond à une compréhension générale d’une compétence. Les bases théoriques sont acquises mais la compétence n’est pas encore mobilisée opérationnellement.',
+        characteristics: [
+            'Compréhension des concepts clés et des enjeux',
+            'Capacité à expliquer le sujet de manière simple',
+            'Pas ou très peu de pratique réelle'
+        ],
+        autonomy: 'Autonomie : très faible, nécessite un encadrement constant',
+        complexity: 'Complexité : situations simples ou théoriques',
+        responsibility: 'Responsabilité : aucune responsabilité opérationnelle',
+        observables: [
+            'Suit des formations ou des présentations',
+            'Participe aux échanges sans intervenir techniquement',
+            'Pose des questions pertinentes'
+        ]
+    },
+    {
+        id: 'level-2',
+        icon: '🔵',
+        title: 'Niveau 2 — Intermédiaire',
+        badgeClass: 'bg-sky-100 text-sky-700',
+        borderClass: 'border-sky-100',
+        definition: 'Le niveau Intermédiaire correspond à une capacité à mettre en œuvre la compétence dans des situations courantes, en s’appuyant sur des méthodes ou des procédures existantes.',
+        characteristics: [
+            'Application concrète dans des cas standards',
+            'Utilisation de bonnes pratiques existantes',
+            'Résolution de problèmes simples'
+        ],
+        autonomy: 'Autonomie : partielle, validation nécessaire sur les points sensibles',
+        complexity: 'Complexité : situations courantes, peu critiques',
+        responsibility: 'Responsabilité : contribution à une activité ou un projet',
+        observables: [
+            'Réalise des tâches avec appui ou supervision',
+            'Suit des procédures ou des standards définis',
+            'Identifie et corrige des erreurs simples'
+        ]
+    },
+    {
+        id: 'level-3',
+        icon: '🟠',
+        title: 'Niveau 3 — Avancé',
+        badgeClass: 'bg-amber-100 text-amber-700',
+        borderClass: 'border-amber-100',
+        definition: 'Le niveau Avancé correspond à une maîtrise opérationnelle permettant de travailler en autonomie sur des situations variées, y compris complexes.',
+        characteristics: [
+            'Adaptation aux contextes et contraintes',
+            'Résolution de problèmes complexes',
+            'Contribution active à l’amélioration des pratiques'
+        ],
+        autonomy: 'Autonomie : élevée, travail en autonomie',
+        complexity: 'Complexité : situations variées et complexes',
+        responsibility: 'Responsabilité : responsabilité de livrables ou de périmètre',
+        observables: [
+            'Propose des solutions adaptées',
+            'Prend des décisions techniques ou fonctionnelles',
+            'Accompagne ou aide d’autres collaborateurs'
+        ]
+    },
+    {
+        id: 'level-4',
+        icon: '🔴',
+        title: 'Niveau 4 — Expert',
+        badgeClass: 'bg-rose-100 text-rose-700',
+        borderClass: 'border-rose-100',
+        definition: 'Le niveau Expert correspond à une maîtrise complète avec capacité de pilotage, de structuration et de diffusion de la compétence à l’échelle d’une organisation.',
+        characteristics: [
+            'Vision globale et stratégique',
+            'Définition des standards et des bonnes pratiques',
+            'Intervention sur des situations critiques ou inédites'
+        ],
+        autonomy: 'Autonomie : totale',
+        complexity: 'Complexité : situations critiques, transverses ou incertaines',
+        responsibility: 'Responsabilité : responsabilité stratégique ou organisationnelle',
+        observables: [
+            'Définit des référentiels, normes ou architectures',
+            'Forme et accompagne les équipes',
+            'Est identifié comme référent ou expert'
+        ]
+    }
+]
+
+const masteryMatrixColumns = ['Notions', 'Intermédiaire', 'Avancé', 'Expert']
+
+const masteryMatrix = [
+    { criteria: 'Autonomie', values: ['Faible', 'Partielle', 'Élevée', 'Totale'] },
+    { criteria: 'Complexité', values: ['Simple', 'Standard', 'Complexe', 'Critique'] },
+    { criteria: 'Responsabilité', values: ['Aucune', 'Contribution', 'Livrable', 'Stratégique'] },
+    { criteria: 'Impact', values: ['Individuel', 'Activité', 'Projet', 'Organisation'] },
+    { criteria: 'Rôle', values: ['Comprend', 'Applique', 'Maîtrise', 'Structure'] }
+]
 
 export default function FormationsPage() {
     const [formations, setFormations] = useState<Formation[]>([])
@@ -12,7 +108,7 @@ export default function FormationsPage() {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
-    const [catalogView, setCatalogView] = useState<'formations' | 'competences'>('formations')
+    const [catalogView, setCatalogView] = useState<'formations' | 'competences' | 'levels'>('formations')
     const [searchQuery, setSearchQuery] = useState('')
     const [showCompetenceForm, setShowCompetenceForm] = useState(false)
     const [competenceForm, setCompetenceForm] = useState({ nom: '', description: '' })
@@ -214,8 +310,17 @@ export default function FormationsPage() {
                                     type="search"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder={`Rechercher une ${catalogView === 'formations' ? 'formation' : 'compétence'}…`}
-                                    className="w-full rounded-2xl border border-slate-200 px-4 py-2 text-sm text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                                    placeholder={
+                                        catalogView === 'formations'
+                                            ? 'Rechercher une formation…'
+                                            : catalogView === 'competences'
+                                                ? 'Rechercher une compétence…'
+                                                : 'Recherche désactivée pour cette vue'
+                                    }
+                                    disabled={catalogView === 'levels'}
+                                    className={`w-full rounded-2xl border px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-100 ${catalogView === 'levels'
+                                        ? 'border-slate-200 bg-slate-50 text-slate-400'
+                                        : 'border-slate-200 focus:border-sky-500'}`}
                                 />
                             </div>
                             <div className="inline-flex rounded-2xl bg-slate-100 p-1">
@@ -232,6 +337,13 @@ export default function FormationsPage() {
                                     className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all ${catalogView === 'competences' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
                                 >
                                     Compétences
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setCatalogView('levels')}
+                                    className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all text-center ${catalogView === 'levels' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                                >
+                                    Niveaux de maîtrise des compétences
                                 </button>
                             </div>
                             {canEdit && catalogView === 'formations' && (
@@ -325,7 +437,7 @@ export default function FormationsPage() {
                                 )}
                             </div>
                         </div>
-                    ) : (
+                    ) : catalogView === 'competences' ? (
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -360,6 +472,87 @@ export default function FormationsPage() {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Référentiel interne</p>
+                                <h3 className="text-lg font-semibold text-slate-900">Niveaux de maîtrise des compétences</h3>
+                                <p className="text-sm text-slate-500">
+                                    Utilisez cette grille pour interpréter les niveaux ANAP (1 à 4) lorsque vous associez une compétence à un métier ou à un plan de formation.
+                                </p>
+                            </div>
+                            <div className="grid gap-4 lg:grid-cols-2">
+                                {masteryLevels.map((level) => (
+                                    <article
+                                        key={level.id}
+                                        className={`rounded-3xl border ${level.borderClass} bg-white/90 p-5 shadow-sm`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl text-xl font-bold ${level.badgeClass}`}>
+                                                {level.icon}
+                                            </span>
+                                            <h4 className="text-base font-semibold text-slate-900">{level.title}</h4>
+                                        </div>
+                                        <p className="mt-3 text-sm text-slate-600">{level.definition}</p>
+                                        <div className="mt-4 space-y-2 text-sm">
+                                            <p className="font-semibold text-slate-800">Caractéristiques</p>
+                                            <ul className="list-disc space-y-1 pl-5 text-slate-600">
+                                                {level.characteristics.map((item) => (
+                                                    <li key={`${level.id}-char-${item}`}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="mt-4 space-y-1 text-sm text-slate-600">
+                                            <p>{level.autonomy}</p>
+                                            <p>{level.complexity}</p>
+                                            <p>{level.responsibility}</p>
+                                        </div>
+                                        <div className="mt-4 text-sm">
+                                            <p className="font-semibold text-slate-800">Indicateurs observables</p>
+                                            <ul className="list-disc space-y-1 pl-5 text-slate-600">
+                                                {level.observables.map((item) => (
+                                                    <li key={`${level.id}-obs-${item}`}>{item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                            <div className="rounded-3xl border border-slate-100 bg-slate-50/60 p-5">
+                                <div className="flex items-center gap-2 text-slate-700">
+                                    <div>
+                                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Grille de lecture rapide</p>
+                                        <p className="text-base font-semibold text-slate-900">Aide — niveaux ANAP</p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-slate-200 text-sm">
+                                        <thead className="bg-white">
+                                            <tr>
+                                                <th className="px-4 py-2 text-left font-semibold text-slate-500">Critère</th>
+                                                {masteryMatrixColumns.map((col) => (
+                                                    <th key={col} className="px-4 py-2 text-left font-semibold text-slate-500">
+                                                        {col}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {masteryMatrix.map((row) => (
+                                                <tr key={row.criteria} className="odd:bg-white even:bg-white/60">
+                                                    <td className="px-4 py-2 font-semibold text-slate-700">{row.criteria}</td>
+                                                    {row.values.map((value, index) => (
+                                                        <td key={`${row.criteria}-${index}`} className="px-4 py-2 text-slate-600">
+                                                            {value}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </section>

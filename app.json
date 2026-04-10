@@ -1,7 +1,5 @@
 {
-  "addons": [
-    "heroku-postgresql"
-  ],
+  "addons": [],
   "buildpacks": [
     {
       "url": "https://github.com/heroku/heroku-buildpack-java"
